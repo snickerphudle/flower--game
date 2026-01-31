@@ -54,7 +54,7 @@ export default function HomeScene() {
               exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
               transition={{ duration: 0.5 }}
             >
-              <StartButton onStart={handleStart} />
+              <StartButton onStartAction={handleStart} />
             </motion.div>
           )}
 
