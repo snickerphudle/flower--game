@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 
 interface StartButtonProps {
@@ -10,10 +10,35 @@ interface StartButtonProps {
 
 export default function StartButton({ onStartAction }: StartButtonProps) {
   const [isClicked, setIsClicked] = useState(false);
+  const startupAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Preload for instant playback on click.
+    const audio = new Audio("/startup1.mp3");
+    audio.preload = "auto";
+    startupAudioRef.current = audio;
+
+    return () => {
+      // Best-effort cleanup
+      startupAudioRef.current = null;
+    };
+  }, []);
 
   const handleClick = () => {
     if (isClicked) return;
     setIsClicked(true);
+
+    // Must be triggered from user gesture for best autoplay compatibility.
+    const audio = startupAudioRef.current ?? new Audio("/startup1.mp3");
+    try {
+      audio.currentTime = 0;
+    } catch {
+      // ignore (some browsers may block setting currentTime before metadata loads)
+    }
+    void audio.play().catch(() => {
+      // ignore autoplay restrictions or transient failures
+    });
+
     onStartAction();
     // Reset click state after animation if needed, but for V1 we just start
     setTimeout(() => setIsClicked(false), 1000);
@@ -36,7 +61,9 @@ export default function StartButton({ onStartAction }: StartButtonProps) {
         <motion.button
           onClick={handleClick}
           initial={false}
-          animate={isClicked ? { scale: 0.98, opacity: 0.9 } : { scale: 1, opacity: 1 }}
+          animate={
+            isClicked ? { scale: 0.98, opacity: 0.9 } : { scale: 1, opacity: 1 }
+          }
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           className={clsx(
@@ -70,7 +97,10 @@ export default function StartButton({ onStartAction }: StartButtonProps) {
             transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
           >
             {/* Shimmer highlight that softly passes over the text */}
-            <span aria-hidden="true" className="absolute inset-0 overflow-hidden">
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 overflow-hidden"
+            >
               <motion.span
                 className="absolute -inset-y-6 w-16 rotate-12 opacity-40"
                 style={{
@@ -93,7 +123,11 @@ export default function StartButton({ onStartAction }: StartButtonProps) {
               className="relative"
               style={{ textShadow: "0px 0px 14px rgba(253, 164, 175, 0.35)" }}
               animate={{ opacity: [0.92, 1, 0.92] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 2.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             >
               Start
             </motion.span>
