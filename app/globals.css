@@ -17,6 +17,15 @@ body {
   overflow: hidden; /* Prevent scrolling on the full-screen app */
 }
 
+/* Hide scrollbars (keep scrolling enabled) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 /* Custom Paper Texture Utility */
 .bg-paper-texture {
   background-color: #fff1f2;

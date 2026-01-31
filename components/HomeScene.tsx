@@ -5,6 +5,7 @@ import BlossomField from "./BlossomField";
 import StartButton from "./StartButton";
 import CentralFlower from "./CentralFlower";
 import { motion, AnimatePresence } from "framer-motion";
+import FlowerCarousel from "./FlowerCarousel";
 
 export default function HomeScene() {
   const [started, setStarted] = useState(false);
@@ -24,14 +25,7 @@ export default function HomeScene() {
   };
 
   if (sceneExited) {
-    // Placeholder for next screen / V2
-    return (
-      <div className="w-full h-screen bg-white flex items-center justify-center">
-        <p className="text-rose-300 font-serif italic animate-pulse">
-          Loading next memory...
-        </p>
-      </div>
-    );
+    return <FlowerCarousel />;
   }
 
   return (
