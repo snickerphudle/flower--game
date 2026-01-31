@@ -3,26 +3,36 @@
 import { useState } from "react";
 import BlossomField from "./BlossomField";
 import StartButton from "./StartButton";
-import { motion } from "framer-motion";
+import CentralFlower from "./CentralFlower";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function HomeScene() {
   const [started, setStarted] = useState(false);
-
-  // Use started state to prevent re-triggering or for future transitions
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _ignore = started;
-  const [isGusting, setIsGusting] = useState(false);
+  const [showTransition, setShowTransition] = useState(false);
+  const [sceneExited, setSceneExited] = useState(false);
 
   const handleStart = () => {
     console.log("Experience started!");
     setStarted(true);
-    setIsGusting(true);
 
-    // Reset gust after 700ms
-    setTimeout(() => {
-      setIsGusting(false);
-    }, 700);
+    // Start transition immediately
+    setShowTransition(true);
   };
+
+  const handleSequenceComplete = () => {
+    setSceneExited(true);
+  };
+
+  if (sceneExited) {
+    // Placeholder for next screen / V2
+    return (
+      <div className="w-full h-screen bg-white flex items-center justify-center">
+        <p className="text-rose-300 font-serif italic animate-pulse">
+          Loading next memory...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <main className="relative w-full h-screen overflow-hidden bg-rose-50 bg-paper-texture selection:bg-rose-200">
@@ -33,11 +43,30 @@ export default function HomeScene() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,241,242,0.8)_100%)] pointer-events-none opacity-50" />
 
       {/* Blossom Field (Background Layer) */}
-      <BlossomField count={25} isGusting={isGusting} />
+      <BlossomField count={25} />
 
       {/* Content Layer */}
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
-        <StartButton onStart={handleStart} />
+        <AnimatePresence mode="wait">
+          {!started && (
+            <motion.div
+              key="start-button"
+              exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+              transition={{ duration: 0.5 }}
+            >
+              <StartButton onStart={handleStart} />
+            </motion.div>
+          )}
+
+          {showTransition && (
+            <motion.div
+              key="central-flower"
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <CentralFlower onSequenceComplete={handleSequenceComplete} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Foreground Blur Layer (Parallax depth hint) */}

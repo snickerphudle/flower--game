@@ -55,14 +55,6 @@ export default function StartButton({ onStart }: StartButtonProps) {
       </div>
 
       {/* Subtext */}
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="text-rose-800/60 text-sm font-light tracking-wide font-serif italic"
-      >
-        A little surprise for Mom
-      </motion.p>
     </div>
   );
 }

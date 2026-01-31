@@ -34,13 +34,9 @@ interface PetalConfig {
 
 interface BlossomFieldProps {
   count?: number;
-  isGusting?: boolean;
 }
 
-export default function BlossomField({
-  count = 20,
-  isGusting = false,
-}: BlossomFieldProps) {
+export default function BlossomField({ count = 20 }: BlossomFieldProps) {
   const [petals, setPetals] = useState<PetalConfig[]>([]);
   const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -83,9 +79,6 @@ export default function BlossomField({
           shouldReduceMotion={shouldReduceMotion ?? false}
         />
       ))}
-
-      {/* Extra gust layer that only appears when gusting - skip if reduced motion */}
-      {isGusting && !shouldReduceMotion && <GustLayer />}
     </div>
   );
 }
@@ -95,7 +88,6 @@ function Petal({
   shouldReduceMotion,
 }: {
   config: PetalConfig;
-  isGusting?: boolean;
   shouldReduceMotion: boolean;
 }) {
   // We use a continuous loop for the background field
@@ -156,36 +148,5 @@ function Petal({
     >
       <PetalSVG />
     </motion.div>
-  );
-}
-
-// A separate layer of fast-moving petals for the "Gust" effect
-function GustLayer() {
-  const gustPetals = Array.from({ length: 15 }).map((_, i) => ({
-    id: i,
-    y: randomRange(10, 90),
-    scale: randomRange(0.5, 1),
-    delay: randomRange(0, 0.2),
-  }));
-
-  return (
-    <>
-      {gustPetals.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute w-10 h-10"
-          initial={{ x: "-10vw", y: `${p.y}vh`, opacity: 0, rotate: 0 }}
-          animate={{ x: "120vw", opacity: [0, 1, 0], rotate: 720 }}
-          transition={{
-            duration: randomRange(0.8, 1.5), // Fast!
-            ease: "easeOut",
-            delay: p.delay,
-          }}
-          style={{ scale: p.scale }}
-        >
-          <PetalSVG color="#f43f5e" /> {/* Slightly darker for visibility */}
-        </motion.div>
-      ))}
-    </>
   );
 }
