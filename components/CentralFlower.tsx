@@ -77,12 +77,11 @@ export default function CentralFlower({
           ? shouldReduceMotion
             ? { scale: 1.12, opacity: 0 }
             : {
-                // Portal-ish entry: spin around center while scaling up
-                rotate: 1080,
+                // Portal-ish entry: scale into the portal
                 scale: 45,
                 opacity: 0,
               }
-          : { rotate: 0, scale: 1, opacity: 1 }
+          : { scale: 1, opacity: 1 }
       }
       transition={{
         duration: 0.9,
@@ -99,7 +98,6 @@ export default function CentralFlower({
             ? {
                 opacity: [0, 0.45, 0],
                 scale: [0.9, 1.25, 1.8],
-                rotate: [0, 120, 240],
               }
             : { opacity: 0, scale: 1, rotate: 0 }
         }
@@ -114,20 +112,23 @@ export default function CentralFlower({
         />
       </motion.div>
 
-      <svg
-        width="200"
-        height="200"
-        viewBox="0 0 100 100"
-        className={zoom ? "" : "drop-shadow-xl"}
-        style={{ overflow: "visible" }}
+      {/* Keep the portal ring fixed; spin only the flower. */}
+      <motion.div
+        animate={zoom && !shouldReduceMotion ? { rotate: 1080 } : { rotate: 0 }}
+        transition={{ duration: 0.9, ease: [0.7, 0, 0.84, 0], delay: 0.08 }}
+        style={{
+          transformOrigin: "50% 50%",
+          willChange: "transform",
+          transform: "translate3d(0,0,0)",
+          backfaceVisibility: "hidden",
+        }}
       >
-        <motion.g
-          // During portal entry, the flower subtly counter-spins for depth.
-          animate={
-            zoom && !shouldReduceMotion ? { rotate: -180 } : { rotate: 0 }
-          }
-          transition={{ duration: 0.9, ease: [0.7, 0, 0.84, 0], delay: 0.08 }}
-          style={{ transformOrigin: "50px 50px" }}
+        <svg
+          width="200"
+          height="200"
+          viewBox="0 0 100 100"
+          className={zoom ? "" : "drop-shadow-xl"}
+          style={{ overflow: "visible" }}
         >
           <g transform="translate(50, 50)">
             {/* 5 Petals arranged radially (like your reference). */}
@@ -164,8 +165,8 @@ export default function CentralFlower({
               transition={{ delay: 1.3, type: "spring" }}
             />
           </g>
-        </motion.g>
-      </svg>
+        </svg>
+      </motion.div>
     </motion.div>
   );
 }
