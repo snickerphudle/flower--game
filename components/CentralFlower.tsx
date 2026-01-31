@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 interface CentralFlowerProps {
@@ -39,6 +39,7 @@ export default function CentralFlower({
   onSequenceComplete,
 }: CentralFlowerProps) {
   const [zoom, setZoom] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     // Sequence:
@@ -47,13 +48,14 @@ export default function CentralFlower({
     // 1.5s: Wait a beat
     // 1.5s: Trigger zoom
 
-    const totalDuration = 0.2 * 5 + 0.5;
+    const totalDuration = 0.2 * 5 + 0.45;
+    const portalDurationMs = 900;
 
     const timer = setTimeout(() => {
       setZoom(true);
       if (onSequenceComplete) {
         // Give time for zoom animation to finish before calling complete
-        setTimeout(onSequenceComplete, 1500);
+        setTimeout(onSequenceComplete, portalDurationMs);
       }
     }, totalDuration * 1000);
 
@@ -63,13 +65,47 @@ export default function CentralFlower({
   return (
     <motion.div
       className="relative z-50 flex items-center justify-center pointer-events-none"
-      animate={zoom ? { scale: 50, opacity: 0 } : { scale: 1, opacity: 1 }}
+      style={{
+        transformOrigin: "50% 50%",
+        willChange: "transform, filter, opacity",
+      }}
+      animate={
+        zoom
+          ? shouldReduceMotion
+            ? { scale: 1.15, opacity: 0, filter: "blur(6px)" }
+            : {
+                // Portal-ish entry: spin around center while scaling up
+                rotate: 1080,
+                scale: 45,
+                opacity: 0,
+                filter: "blur(10px)",
+              }
+          : { rotate: 0, scale: 1, opacity: 1, filter: "blur(0px)" }
+      }
       transition={{
-        duration: 1.5,
+        duration: 0.9,
         ease: [0.7, 0, 0.84, 0], // Custom easeInExpo-ish for dramatic zoom
-        delay: 0.2,
+        delay: 0.08,
       }}
     >
+      {/* Portal ring cue (subtle). */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center"
+        initial={false}
+        animate={
+          zoom && !shouldReduceMotion
+            ? {
+                opacity: [0, 0.45, 0],
+                scale: [0.9, 1.25, 1.8],
+                rotate: [0, 120, 240],
+              }
+            : { opacity: 0, scale: 1, rotate: 0 }
+        }
+        transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="h-44 w-44 rounded-full border border-rose-200/70 shadow-[0_0_30px_rgba(251,113,133,0.18)]" />
+      </motion.div>
+
       <svg
         width="200"
         height="200"
@@ -77,41 +113,50 @@ export default function CentralFlower({
         className="drop-shadow-xl"
         style={{ overflow: "visible" }}
       >
-        <g transform="translate(50, 50)">
-          {/* 5 Petals arranged radially (like your reference). */}
-          {Array.from({ length: 5 }).map((_, i) => {
-            const angle = i * 72;
-            const radius = 18; // tweak spacing between petals here
-            return (
-              <g
-                key={i}
-                transform={`rotate(${angle}) translate(0, -${radius})`}
-              >
-                <Petal delay={i * 0.2} />
-              </g>
-            );
-          })}
+        <motion.g
+          // During portal entry, the flower subtly counter-spins for depth.
+          animate={
+            zoom && !shouldReduceMotion ? { rotate: -180 } : { rotate: 0 }
+          }
+          transition={{ duration: 0.9, ease: [0.7, 0, 0.84, 0], delay: 0.08 }}
+          style={{ transformOrigin: "50px 50px" }}
+        >
+          <g transform="translate(50, 50)">
+            {/* 5 Petals arranged radially (like your reference). */}
+            {Array.from({ length: 5 }).map((_, i) => {
+              const angle = i * 72;
+              const radius = 18; // tweak spacing between petals here
+              return (
+                <g
+                  key={i}
+                  transform={`rotate(${angle}) translate(0, -${radius})`}
+                >
+                  <Petal delay={i * 0.2} />
+                </g>
+              );
+            })}
 
-          {/* Center Stamen (appears last) */}
-          <motion.circle
-            cx="0"
-            cy="0"
-            r="4.2"
-            fill="#fff"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1.2, type: "spring" }}
-          />
-          <motion.circle
-            cx="0"
-            cy="0"
-            r="2.1"
-            fill="#fecdd3"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1.3, type: "spring" }}
-          />
-        </g>
+            {/* Center Stamen (appears last) */}
+            <motion.circle
+              cx="0"
+              cy="0"
+              r="4.2"
+              fill="#fff"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 1.2, type: "spring" }}
+            />
+            <motion.circle
+              cx="0"
+              cy="0"
+              r="2.1"
+              fill="#fecdd3"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 1.3, type: "spring" }}
+            />
+          </g>
+        </motion.g>
       </svg>
     </motion.div>
   );
