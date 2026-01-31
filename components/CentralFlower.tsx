@@ -14,8 +14,9 @@ interface CentralFlowerProps {
 const Petal = ({ delay }: { delay: number }) => {
   return (
     <motion.g
-      initial={{ opacity: 0, scale: 0.65, filter: "blur(2px)" }}
-      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      // Avoid animating CSS filters (can rasterize + lag on scale)
+      initial={{ opacity: 0, scale: 0.65 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{
         duration: 0.75,
         delay,
@@ -67,20 +68,21 @@ export default function CentralFlower({
       className="relative z-50 flex items-center justify-center pointer-events-none"
       style={{
         transformOrigin: "50% 50%",
-        willChange: "transform, filter, opacity",
+        willChange: "transform, opacity",
+        transform: "translate3d(0,0,0)",
+        backfaceVisibility: "hidden",
       }}
       animate={
         zoom
           ? shouldReduceMotion
-            ? { scale: 1.15, opacity: 0, filter: "blur(6px)" }
+            ? { scale: 1.12, opacity: 0 }
             : {
                 // Portal-ish entry: spin around center while scaling up
                 rotate: 1080,
                 scale: 45,
                 opacity: 0,
-                filter: "blur(10px)",
               }
-          : { rotate: 0, scale: 1, opacity: 1, filter: "blur(0px)" }
+          : { rotate: 0, scale: 1, opacity: 1 }
       }
       transition={{
         duration: 0.9,
@@ -103,14 +105,20 @@ export default function CentralFlower({
         }
         transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="h-44 w-44 rounded-full border border-rose-200/70 shadow-[0_0_30px_rgba(251,113,133,0.18)]" />
+        <div
+          className={[
+            "h-44 w-44 rounded-full border border-rose-200/70",
+            // Drop heavy glow during zoom to prevent blurred raster edges
+            zoom ? "shadow-none" : "shadow-[0_0_30px_rgba(251,113,133,0.18)]",
+          ].join(" ")}
+        />
       </motion.div>
 
       <svg
         width="200"
         height="200"
         viewBox="0 0 100 100"
-        className="drop-shadow-xl"
+        className={zoom ? "" : "drop-shadow-xl"}
         style={{ overflow: "visible" }}
       >
         <motion.g
