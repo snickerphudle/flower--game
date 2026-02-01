@@ -14,7 +14,7 @@ export default function StartButton({ onStartAction }: StartButtonProps) {
 
   useEffect(() => {
     // Preload for instant playback on click.
-    const audio = new Audio("/startup1.mp3");
+    const audio = new Audio("/rosesfountain.mp3");
     audio.preload = "auto";
     startupAudioRef.current = audio;
 

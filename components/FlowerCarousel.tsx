@@ -22,7 +22,7 @@ export default function FlowerCarousel() {
     () => [
       {
         id: "rose",
-        name: "Rose",
+        name: "rose",
         caption: "For the love you gave so freely.",
         backgroundClassName:
           "bg-gradient-to-b from-rose-50 via-white to-rose-100/40",
@@ -76,6 +76,9 @@ export default function FlowerCarousel() {
     [],
   );
 
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const bgmStartedRef = useRef(false);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
 
@@ -87,6 +90,32 @@ export default function FlowerCarousel() {
   useEffect(() => {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
+
+  useEffect(() => {
+    // Play background music on first landing (best-effort; browsers may still block).
+    if (bgmStartedRef.current) return;
+    bgmStartedRef.current = true;
+
+    const audio = new Audio("/rosesfountain.mp3");
+    audio.preload = "auto";
+    audio.loop = true;
+    audio.volume = 0.9;
+    bgmRef.current = audio;
+
+    void audio.play().catch(() => {
+      // ignore autoplay restrictions
+    });
+
+    return () => {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {
+        // ignore
+      }
+      if (bgmRef.current === audio) bgmRef.current = null;
+    };
+  }, []);
 
   const scrollToIndex = (index: number) => {
     const next = clamp(index, 0, sections.length - 1);
@@ -112,7 +141,9 @@ export default function FlowerCarousel() {
         // Pick the most visible intersecting section (threshold helps, but be safe).
         const candidates = entries
           .filter((e) => e.isIntersecting)
-          .sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0));
+          .sort(
+            (a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0),
+          );
         const top = candidates[0];
         if (!top?.target) return;
         const idx = sectionRefs.current.findIndex((n) => n === top.target);
@@ -267,10 +298,10 @@ export default function FlowerCarousel() {
               </div>
 
               <figcaption className="mt-6 text-center">
-                <div className="text-2xl sm:text-3xl font-serif tracking-wide text-rose-950/90">
+                <div className="font-display text-4xl sm:text-6xl font-extrabold tracking-[-0.04em] text-rose-950/90 lowercase">
                   {section.name}
                 </div>
-                <div className="mt-2 text-base sm:text-lg font-serif italic text-rose-900/70">
+                <div className="font-caption mt-3 text-base sm:text-xl font-medium tracking-[-0.01em] text-rose-900/60">
                   {section.caption}
                 </div>
                 <div className="mt-6 text-xs uppercase tracking-[0.35em] text-rose-900/35">
@@ -284,4 +315,3 @@ export default function FlowerCarousel() {
     </div>
   );
 }
-
