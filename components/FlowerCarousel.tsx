@@ -249,7 +249,6 @@ export default function FlowerCarousel() {
   const activeIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
   const [showFinal, setShowFinal] = useState(false);
-  const lastSectionRevealedRef = useRef(false);
   // Trackpad “momentum” can fire many wheel events; treat each gesture as one jump.
   const wheelGestureActiveRef = useRef(false);
   const wheelGestureEndTimerRef = useRef<number | null>(null);
@@ -302,16 +301,6 @@ export default function FlowerCarousel() {
       unwrapTimeoutsRef.current = {};
     };
   }, []);
-
-  useEffect(() => {
-    const last = sections[sections.length - 1];
-    if (!last) return;
-    const revealed = (unwrapStateById[last.id] ?? "wrapped") === "revealed";
-    lastSectionRevealedRef.current = revealed;
-    if (!revealed) return;
-    const t = window.setTimeout(() => setShowFinal(true), 1400);
-    return () => window.clearTimeout(t);
-  }, [sections, unwrapStateById]);
 
   const unwrap = (sectionId: string) => {
     setUnwrapStateById((prev) => {
@@ -404,15 +393,6 @@ export default function FlowerCarousel() {
       e.preventDefault();
 
       if (isAnimatingRef.current) return;
-      // If the last section is revealed, scrolling down should enter the final screen.
-      if (
-        e.deltaY > 0 &&
-        activeIndexRef.current === sections.length - 1 &&
-        lastSectionRevealedRef.current
-      ) {
-        setShowFinal(true);
-        return;
-      }
       if (wheelGestureActiveRef.current) {
         // Keep extending the gesture window while events keep coming.
         if (wheelGestureEndTimerRef.current != null) {
@@ -462,15 +442,6 @@ export default function FlowerCarousel() {
 
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
-        const last = sections[sections.length - 1];
-        if (
-          activeIndexRef.current === sections.length - 1 &&
-          last &&
-          (unwrapStateById[last.id] ?? "wrapped") === "revealed"
-        ) {
-          setShowFinal(true);
-          return;
-        }
         scrollToIndex(activeIndexRef.current + 1);
       }
       if (e.key === "ArrowUp" || e.key === "PageUp") {
@@ -512,32 +483,6 @@ export default function FlowerCarousel() {
           />
         ))}
       </div>
-
-      {(() => {
-        const last = sections[sections.length - 1];
-        if (!last) return null;
-        const isLastActive = activeIndex === sections.length - 1;
-        const isLastRevealed = (unwrapStateById[last.id] ?? "wrapped") === "revealed";
-        if (!isLastActive || !isLastRevealed) return null;
-        return (
-          <div className="fixed bottom-6 left-0 right-0 z-30 flex justify-center px-6">
-            <button
-              type="button"
-              onClick={() => setShowFinal(true)}
-              className={clsx(
-                "px-5 py-3 rounded-full",
-                "bg-white/75 backdrop-blur",
-                "border border-black/5",
-                "shadow-[0_18px_55px_rgba(0,0,0,0.14)]",
-                "text-xs sm:text-sm tracking-[0.25em] uppercase text-rose-900/70",
-                "hover:bg-white/85 transition-colors"
-              )}
-            >
-              continue →
-            </button>
-          </div>
-        );
-      })()}
 
       {/* Scroll container */}
       <div
@@ -714,9 +659,30 @@ export default function FlowerCarousel() {
                       <div className="font-caption mt-3 text-sm sm:text-lg font-medium tracking-[-0.01em] text-rose-900/60">
                         {section.caption}
                       </div>
-                      <div className="mt-5 text-[11px] uppercase tracking-[0.35em] text-rose-900/35">
-                        Click ↓ to continue
-                      </div>
+                      {section.id === "cherry-blossom" &&
+                      (unwrapStateById[section.id] ?? "wrapped") ===
+                        "revealed" ? (
+                        <div className="mt-6 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setShowFinal(true)}
+                            className={clsx(
+                              "px-5 py-3 rounded-full",
+                              "bg-white/80 backdrop-blur",
+                              "border border-black/5",
+                              "shadow-[0_18px_55px_rgba(0,0,0,0.14)]",
+                              "text-xs sm:text-sm tracking-[0.25em] uppercase text-rose-900/70",
+                              "hover:bg-white/90 transition-colors"
+                            )}
+                          >
+                            continue →
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="mt-5 text-[11px] uppercase tracking-[0.35em] text-rose-900/35">
+                          Click ↓ to continue
+                        </div>
+                      )}
                     </figcaption>
 
                     {/* Show the flower badge as soon as unwrapping starts */}
