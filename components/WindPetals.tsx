@@ -27,11 +27,13 @@ export default function WindPetals({
   enabled = true,
   count = 100,
   className,
+  lowCost = false,
 }: {
   sources: string[];
   enabled?: boolean;
   count?: number;
   className?: string;
+  lowCost?: boolean;
 }) {
   const shouldReduceMotion = useReducedMotion();
 
@@ -39,10 +41,13 @@ export default function WindPetals({
     if (!enabled) return [];
     if (!sources.length) return [];
 
-    const effectiveCount = shouldReduceMotion ? Math.min(count, 12) : count;
+    let effectiveCount = shouldReduceMotion ? Math.min(count, 12) : count;
+    if (lowCost) {
+      effectiveCount = Math.min(effectiveCount, shouldReduceMotion ? 10 : 70);
+    }
 
     return Array.from({ length: effectiveCount }).map((_, i) => {
-      const durationS = randomRange(10, 18);
+      const durationS = lowCost ? randomRange(12, 20) : randomRange(10, 18);
       const delayS = randomRange(0, 2.5);
 
       return {
@@ -50,18 +55,18 @@ export default function WindPetals({
         src: sample(sources),
         xStart: randomRange(-10, 110),
         yStart: randomRange(-30, 110),
-        sizePx: randomInt(18, 46),
+        sizePx: lowCost ? randomInt(16, 40) : randomInt(18, 46),
         durationS,
         delayS,
-        driftVw: randomRange(-16, 16),
-        swayVw: randomRange(2, 7),
+        driftVw: lowCost ? randomRange(-12, 12) : randomRange(-16, 16),
+        swayVw: lowCost ? randomRange(1.5, 5) : randomRange(2, 7),
         rot0Deg: randomRange(-40, 40),
         rot1Deg: randomRange(180, 540) * (Math.random() < 0.5 ? -1 : 1),
-        opacity: randomRange(0.18, 0.55),
-        blurPx: randomRange(0, 1.1),
+        opacity: lowCost ? randomRange(0.14, 0.45) : randomRange(0.18, 0.55),
+        blurPx: lowCost ? 0 : randomRange(0, 1.1),
       };
     });
-  }, [count, enabled, sources, shouldReduceMotion]);
+  }, [count, enabled, lowCost, sources, shouldReduceMotion]);
 
   if (!enabled) return null;
   if (!sources.length) return null;
@@ -87,12 +92,14 @@ export default function WindPetals({
           animate={{
             x: shouldReduceMotion
               ? `${p.xStart}vw`
-              : [
-                  `${p.xStart}vw`,
-                  `${p.xStart + p.swayVw}vw`,
-                  `${p.xStart - p.swayVw}vw`,
-                  `${p.xStart + p.driftVw}vw`,
-                ],
+              : lowCost
+                ? [`${p.xStart}vw`, `${p.xStart + p.driftVw}vw`]
+                : [
+                    `${p.xStart}vw`,
+                    `${p.xStart + p.swayVw}vw`,
+                    `${p.xStart - p.swayVw}vw`,
+                    `${p.xStart + p.driftVw}vw`,
+                  ],
             y: [`${p.yStart}vh`, "120vh"],
             rotate: shouldReduceMotion ? 0 : [p.rot0Deg, p.rot1Deg],
             opacity: [0, p.opacity, p.opacity, 0],
@@ -100,7 +107,9 @@ export default function WindPetals({
           transition={{
             x: shouldReduceMotion
               ? { duration: p.durationS, repeat: Infinity, ease: "linear" }
-              : {
+              : lowCost
+                ? { duration: p.durationS, repeat: Infinity, ease: "linear" }
+                : {
                   duration: p.durationS * 0.9,
                   repeat: Infinity,
                   ease: "easeInOut",
@@ -129,7 +138,9 @@ export default function WindPetals({
           style={{
             width: p.sizePx,
             height: p.sizePx,
-            filter: `blur(${p.blurPx}px) drop-shadow(0 16px 34px rgba(0,0,0,0.10))`,
+            filter: lowCost
+              ? "drop-shadow(0 10px 22px rgba(0,0,0,0.10))"
+              : `blur(${p.blurPx}px) drop-shadow(0 16px 34px rgba(0,0,0,0.10))`,
             willChange: "transform",
           }}
         >

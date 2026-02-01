@@ -9,6 +9,7 @@ import { getRosesFountainBgm } from "@/lib/rosesFountainBgm";
 import RosePetals from "./RosePetals";
 import SunflowerPetals from "./SunflowerPetals";
 import WindPetals from "./WindPetals";
+import FinalBirthdayScreen from "./FinalBirthdayScreen";
 
 type FlowerSection = {
   id: string;
@@ -247,6 +248,8 @@ export default function FlowerCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
+  const [showFinal, setShowFinal] = useState(false);
+  const lastSectionRevealedRef = useRef(false);
   // Trackpad “momentum” can fire many wheel events; treat each gesture as one jump.
   const wheelGestureActiveRef = useRef(false);
   const wheelGestureEndTimerRef = useRef<number | null>(null);
@@ -268,6 +271,18 @@ export default function FlowerCarousel() {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
 
+  const finalCards = useMemo(() => {
+    return sections
+      .filter((s) => Boolean(s.image?.src))
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        caption: s.caption,
+        image: s.image!,
+        icon: s.giftIcon,
+      }));
+  }, [sections]);
+
   useEffect(() => {
     // Ensure the background music is playing when the carousel is shown.
     const audio = getRosesFountainBgm();
@@ -287,6 +302,16 @@ export default function FlowerCarousel() {
       unwrapTimeoutsRef.current = {};
     };
   }, []);
+
+  useEffect(() => {
+    const last = sections[sections.length - 1];
+    if (!last) return;
+    const revealed = (unwrapStateById[last.id] ?? "wrapped") === "revealed";
+    lastSectionRevealedRef.current = revealed;
+    if (!revealed) return;
+    const t = window.setTimeout(() => setShowFinal(true), 1400);
+    return () => window.clearTimeout(t);
+  }, [sections, unwrapStateById]);
 
   const unwrap = (sectionId: string) => {
     setUnwrapStateById((prev) => {
@@ -379,6 +404,15 @@ export default function FlowerCarousel() {
       e.preventDefault();
 
       if (isAnimatingRef.current) return;
+      // If the last section is revealed, scrolling down should enter the final screen.
+      if (
+        e.deltaY > 0 &&
+        activeIndexRef.current === sections.length - 1 &&
+        lastSectionRevealedRef.current
+      ) {
+        setShowFinal(true);
+        return;
+      }
       if (wheelGestureActiveRef.current) {
         // Keep extending the gesture window while events keep coming.
         if (wheelGestureEndTimerRef.current != null) {
@@ -406,7 +440,7 @@ export default function FlowerCarousel() {
 
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, []);
+  }, [sections.length]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -428,6 +462,15 @@ export default function FlowerCarousel() {
 
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
+        const last = sections[sections.length - 1];
+        if (
+          activeIndexRef.current === sections.length - 1 &&
+          last &&
+          (unwrapStateById[last.id] ?? "wrapped") === "revealed"
+        ) {
+          setShowFinal(true);
+          return;
+        }
         scrollToIndex(activeIndexRef.current + 1);
       }
       if (e.key === "ArrowUp" || e.key === "PageUp") {
@@ -448,6 +491,10 @@ export default function FlowerCarousel() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [sections, unwrapStateById]);
 
+  if (showFinal) {
+    return <FinalBirthdayScreen cards={finalCards} />;
+  }
+
   return (
     <div className="relative w-full h-screen">
       {/* Progress dots */}
@@ -465,6 +512,32 @@ export default function FlowerCarousel() {
           />
         ))}
       </div>
+
+      {(() => {
+        const last = sections[sections.length - 1];
+        if (!last) return null;
+        const isLastActive = activeIndex === sections.length - 1;
+        const isLastRevealed = (unwrapStateById[last.id] ?? "wrapped") === "revealed";
+        if (!isLastActive || !isLastRevealed) return null;
+        return (
+          <div className="fixed bottom-6 left-0 right-0 z-30 flex justify-center px-6">
+            <button
+              type="button"
+              onClick={() => setShowFinal(true)}
+              className={clsx(
+                "px-5 py-3 rounded-full",
+                "bg-white/75 backdrop-blur",
+                "border border-black/5",
+                "shadow-[0_18px_55px_rgba(0,0,0,0.14)]",
+                "text-xs sm:text-sm tracking-[0.25em] uppercase text-rose-900/70",
+                "hover:bg-white/85 transition-colors"
+              )}
+            >
+              continue →
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Scroll container */}
       <div
