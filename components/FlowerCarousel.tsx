@@ -52,7 +52,7 @@ function GiftWrapOverlay({
         "border border-black/5",
         "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.55)]",
         wrapClassName,
-        isOpening && "pointer-events-none",
+        isOpening && "pointer-events-none"
       )}
       aria-label={`Unwrap ${flowerName}`}
       initial={false}
@@ -89,7 +89,7 @@ function GiftWrapOverlay({
       {/* prompt */}
       <div className="absolute inset-0 flex items-end justify-center pb-4">
         <div className="px-3 py-1.5 rounded-full bg-white/55 backdrop-blur text-[11px] tracking-[0.35em] uppercase text-rose-950/55">
-          Tap to unwrap
+          Click spacebar to open
         </div>
       </div>
     </motion.button>
@@ -132,7 +132,10 @@ function FlowerBurst({
             <motion.span
               key={p.key}
               className="absolute left-1/2 top-1/2"
-              style={{ fontSize: p.size, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.12))" }}
+              style={{
+                fontSize: p.size,
+                filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.12))",
+              }}
               initial={{ opacity: 0, scale: 0.6, x: 0, y: 0, rotate: 0 }}
               animate={{
                 opacity: [0, 1, 0],
@@ -163,20 +166,19 @@ export default function FlowerCarousel() {
         id: "roses",
         name: "roses",
         caption: "For the love you gave so freely.",
-        image: { src: "/rose.png", alt: "Roses" },
+        image: { src: "/mom7.jpg", alt: "Roses" },
         backgroundClassName:
           "bg-gradient-to-b from-rose-50 via-white to-rose-100/40",
         accentClassName: "from-rose-200/60 to-rose-400/20",
         flowerEmoji: "🌹",
-        wrapClassName:
-          "bg-gradient-to-br from-rose-100 via-rose-50 to-white",
+        wrapClassName: "bg-gradient-to-br from-rose-100 via-rose-50 to-white",
         giftIcon: { src: "/rose.png", alt: "Roses" },
       },
       {
         id: "sunflowers",
         name: "sunflowers",
         caption: "For the way you always turned us toward the light.",
-        image: { src: "/sunflower.png", alt: "Sunflowers" },
+        image: { src: "/momyellow.jpg", alt: "Sunflowers" },
         backgroundClassName:
           "bg-gradient-to-b from-amber-50 via-white to-yellow-100/40",
         accentClassName: "from-amber-200/70 to-yellow-400/20",
@@ -189,20 +191,19 @@ export default function FlowerCarousel() {
         id: "tulips",
         name: "tulips",
         caption: "For the little joys you made feel big.",
-        image: { src: "/tulip.png", alt: "Tulips" },
+        image: { src: "/mom5.jpg", alt: "Tulips" },
         backgroundClassName:
           "bg-gradient-to-b from-rose-50 via-white to-orange-100/30",
         accentClassName: "from-orange-200/60 to-rose-300/20",
         flowerEmoji: "🌷",
-        wrapClassName:
-          "bg-gradient-to-br from-orange-100 via-rose-50 to-white",
+        wrapClassName: "bg-gradient-to-br from-orange-100 via-rose-50 to-white",
         giftIcon: { src: "/tulip.png", alt: "Tulips" },
       },
       {
         id: "lilies",
         name: "lilies",
         caption: "For the peace you created at home.",
-        image: { src: "/lily.png", alt: "Lilies" },
+        image: { src: "/mompeony.jpg", alt: "Lilies" },
         backgroundClassName:
           "bg-gradient-to-b from-slate-50 via-white to-emerald-100/30",
         accentClassName: "from-emerald-200/50 to-slate-300/20",
@@ -215,7 +216,7 @@ export default function FlowerCarousel() {
         id: "lotus",
         name: "lotus",
         caption: "For the calm you gave me, again and again.",
-        image: { src: "/lotus.png", alt: "Lotus" },
+        image: { src: "/momdad.jpg", alt: "Lotus" },
         backgroundClassName:
           "bg-gradient-to-b from-indigo-50 via-white to-violet-100/40",
         accentClassName: "from-violet-200/60 to-indigo-400/20",
@@ -228,7 +229,7 @@ export default function FlowerCarousel() {
         id: "cherry-blossom",
         name: "cherry blossom",
         caption: "For every gentle spring you brought into my life.",
-        image: { src: "/cherryblossom.png", alt: "Cherry blossoms" },
+        image: { src: "/mom1.jpeg", alt: "Cherry blossoms" },
         backgroundClassName:
           "bg-gradient-to-b from-pink-50 via-white to-rose-100/40",
         accentClassName: "from-pink-200/70 to-rose-400/20",
@@ -237,7 +238,7 @@ export default function FlowerCarousel() {
         giftIcon: { src: "/cherryblossom.png", alt: "Cherry blossoms" },
       },
     ],
-    [],
+    []
   );
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -252,13 +253,14 @@ export default function FlowerCarousel() {
 
   const [unwrapStateById, setUnwrapStateById] = useState<
     Record<string, "wrapped" | "unwrapping" | "revealed">
-  >(() =>
-    Object.fromEntries(
-      sections.map((s) => [s.id, "wrapped" as const]),
-    ) as Record<string, "wrapped" | "unwrapping" | "revealed">,
+  >(
+    () =>
+      Object.fromEntries(
+        sections.map((s) => [s.id, "wrapped" as const])
+      ) as Record<string, "wrapped" | "unwrapping" | "revealed">
   );
   const [burstNonceById, setBurstNonceById] = useState<Record<string, number>>(
-    () => Object.fromEntries(sections.map((s) => [s.id, 0])),
+    () => Object.fromEntries(sections.map((s) => [s.id, 0]))
   );
   const unwrapTimeoutsRef = useRef<Record<string, number>>({});
 
@@ -350,14 +352,14 @@ export default function FlowerCarousel() {
         const candidates = entries
           .filter((e) => e.isIntersecting)
           .sort(
-            (a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0),
+            (a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0)
           );
         const top = candidates[0];
         if (!top?.target) return;
         const idx = sectionRefs.current.findIndex((n) => n === top.target);
         if (idx >= 0) setActiveIndex(idx);
       },
-      { root, threshold: [0.55, 0.7, 0.85] },
+      { root, threshold: [0.55, 0.7, 0.85] }
     );
 
     for (const node of sectionRefs.current) {
@@ -457,7 +459,7 @@ export default function FlowerCarousel() {
             onClick={() => scrollToIndex(i)}
             className={clsx(
               "h-2.5 w-2.5 rounded-full transition-all",
-              i === activeIndex ? "bg-rose-500/70 scale-110" : "bg-rose-900/20",
+              i === activeIndex ? "bg-rose-500/70 scale-110" : "bg-rose-900/20"
             )}
             aria-label={`Go to ${s.name}`}
           />
@@ -470,7 +472,7 @@ export default function FlowerCarousel() {
         className={clsx(
           "w-full h-screen overflow-y-auto scroll-smooth",
           "snap-y snap-mandatory",
-          "no-scrollbar",
+          "no-scrollbar"
         )}
         aria-label="Memories"
       >
@@ -484,7 +486,7 @@ export default function FlowerCarousel() {
             }}
             className={clsx(
               "snap-start h-screen w-full flex items-center justify-center relative",
-              section.backgroundClassName,
+              section.backgroundClassName
             )}
             aria-label={section.name}
           >
@@ -496,131 +498,171 @@ export default function FlowerCarousel() {
               const isNearActive = Math.abs(idx - activeIndex) <= 1;
               return (
                 <>
-            {/* Flower burst should feel like it fills the whole screen */}
-            <FlowerBurst
-              nonce={burstNonceById[section.id]}
-              emoji={section.flowerEmoji}
-            />
-
-            {/* Rose-only gentle drifting petals */}
-            {section.id === "roses" && (
-              <RosePetals className="z-[6] opacity-90" count={48} />
-            )}
-
-            {/* Sunflower-only gentle drifting petals */}
-            {section.id === "sunflowers" && (
-              <SunflowerPetals className="z-[6] opacity-80" count={44} />
-            )}
-
-            {/* Petal PNG overlays for the remaining flower screens */}
-            {section.id === "lotus" && (
-              <WindPetals
-                className="z-[6] opacity-80"
-                count={36}
-                sources={["/lotus0.png", "/lotus1.png", "/lotus2.png", "/lotus3.png"]}
-              />
-            )}
-            {section.id === "tulips" && (
-              <WindPetals
-                className="z-[6] opacity-80"
-                count={44}
-                sources={["/tulip0.png", "/tulip1.png", "/tulip2.png", "/tulip3.png"]}
-              />
-            )}
-            {section.id === "lilies" && (
-              <WindPetals
-                className="z-[6] opacity-80"
-                count={34}
-                sources={["/lily0.png", "/lily1.png", "/lily2.png", "/lily3.png"]}
-              />
-            )}
-            {section.id === "cherry-blossom" && (
-              <WindPetals
-                className="z-[6] opacity-80"
-                count={60}
-                sources={["/cherry0.png", "/cherry1.png", "/cherry2.png", "/cherry3.png"]}
-              />
-            )}
-
-            {/* Soft ambient blobs */}
-            <div
-              className={clsx(
-                "absolute -top-24 -left-24 h-80 w-80 rounded-full blur-3xl opacity-60 pointer-events-none",
-                "bg-gradient-to-br",
-                section.accentClassName,
-              )}
-            />
-            <div
-              className={clsx(
-                "absolute -bottom-28 -right-20 h-96 w-96 rounded-full blur-3xl opacity-50 pointer-events-none",
-                "bg-gradient-to-tr",
-                section.accentClassName,
-              )}
-            />
-
-            <figure
-              className={clsx(
-                "relative z-10 w-[min(92vw,760px)] overflow-hidden",
-                "bg-white/95 border border-black/5 shadow-[0_20px_60px_rgba(0,0,0,0.15)]",
-                "rounded-2xl",
-                "px-6 sm:px-10 pt-6 sm:pt-10 pb-8 sm:pb-10",
-                "backdrop-blur-sm",
-              )}
-              style={{
-                transform: `rotate(${idx % 2 === 0 ? -1.2 : 1.1}deg)`,
-              }}
-            >
-              <AnimatePresence>
-                {unwrapStateById[section.id] !== "revealed" && (
-                  <GiftWrapOverlay
-                    key={`wrap-${section.id}`}
-                    flowerName={section.name}
-                    wrapClassName={section.wrapClassName}
-                    centerIcon={section.giftIcon}
-                    centerIconPriority={isNearActive}
-                    isOpening={unwrapStateById[section.id] === "unwrapping"}
-                    onOpen={() => unwrap(section.id)}
+                  {/* Flower burst should feel like it fills the whole screen */}
+                  <FlowerBurst
+                    nonce={burstNonceById[section.id]}
+                    emoji={section.flowerEmoji}
                   />
-                )}
-              </AnimatePresence>
 
-              {/* “Polaroid” photo area */}
-              <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-rose-50 border border-black/5">
-                {section.image ? (
-                  <Image
-                    src={section.image.src}
-                    alt={section.image.alt}
-                    fill
-                    sizes="(max-width: 768px) 92vw, 760px"
-                    className="object-cover"
-                    priority={isNearActive}
-                    loading={isNearActive ? "eager" : "lazy"}
-                  />
-                ) : (
+                  {/* Rose-only gentle drifting petals */}
+                  {section.id === "roses" && (
+                    <RosePetals className="z-[6] opacity-90" count={48} />
+                  )}
+
+                  {/* Sunflower-only gentle drifting petals */}
+                  {section.id === "sunflowers" && (
+                    <SunflowerPetals className="z-[6] opacity-80" count={44} />
+                  )}
+
+                  {/* Petal PNG overlays for the remaining flower screens */}
+                  {section.id === "lotus" && (
+                    <WindPetals
+                      className="z-[6] opacity-80"
+                      count={36}
+                      sources={[
+                        "/lotus0.png",
+                        "/lotus1.png",
+                        "/lotus2.png",
+                        "/lotus3.png",
+                      ]}
+                    />
+                  )}
+                  {section.id === "tulips" && (
+                    <WindPetals
+                      className="z-[6] opacity-80"
+                      count={44}
+                      sources={[
+                        "/tulip0.png",
+                        "/tulip1.png",
+                        "/tulip2.png",
+                        "/tulip3.png",
+                      ]}
+                    />
+                  )}
+                  {section.id === "lilies" && (
+                    <WindPetals
+                      className="z-[6] opacity-80"
+                      count={34}
+                      sources={[
+                        "/lily0.png",
+                        "/lily1.png",
+                        "/lily2.png",
+                        "/lily3.png",
+                      ]}
+                    />
+                  )}
+                  {section.id === "cherry-blossom" && (
+                    <WindPetals
+                      className="z-[6] opacity-80"
+                      count={60}
+                      sources={[
+                        "/cherry0.png",
+                        "/cherry1.png",
+                        "/cherry2.png",
+                        "/cherry3.png",
+                      ]}
+                    />
+                  )}
+
+                  {/* Soft ambient blobs */}
                   <div
                     className={clsx(
-                      "absolute inset-0",
-                      "bg-gradient-to-br from-white via-white to-rose-100/60",
+                      "absolute -top-24 -left-24 h-80 w-80 rounded-full blur-3xl opacity-60 pointer-events-none",
+                      "bg-gradient-to-br",
+                      section.accentClassName
                     )}
                   />
-                )}
+                  <div
+                    className={clsx(
+                      "absolute -bottom-28 -right-20 h-96 w-96 rounded-full blur-3xl opacity-50 pointer-events-none",
+                      "bg-gradient-to-tr",
+                      section.accentClassName
+                    )}
+                  />
 
-                {/* subtle film grain */}
-                <div className="absolute inset-0 opacity-[0.06] mix-blend-multiply pointer-events-none bg-[radial-gradient(circle_at_25%_20%,rgba(0,0,0,0.35)_0%,transparent_55%),radial-gradient(circle_at_70%_60%,rgba(0,0,0,0.25)_0%,transparent_60%)]" />
-              </div>
+                  <figure
+                    className={clsx(
+                      // Portrait-friendly: narrower card and taller photo window for iPhone pics.
+                      "relative z-10 w-[min(90vw,460px)] overflow-hidden",
+                      "bg-white/95 border border-black/5 shadow-[0_20px_60px_rgba(0,0,0,0.15)]",
+                      "rounded-2xl",
+                      "px-5 sm:px-8 pt-5 sm:pt-7 pb-6 sm:pb-8",
+                      "backdrop-blur-sm"
+                    )}
+                    style={{
+                      transform: `rotate(${idx % 2 === 0 ? -1.2 : 1.1}deg)`,
+                    }}
+                  >
+                    <AnimatePresence>
+                      {unwrapStateById[section.id] !== "revealed" && (
+                        <GiftWrapOverlay
+                          key={`wrap-${section.id}`}
+                          flowerName={section.name}
+                          wrapClassName={section.wrapClassName}
+                          centerIcon={section.giftIcon}
+                          centerIconPriority={isNearActive}
+                          isOpening={
+                            unwrapStateById[section.id] === "unwrapping"
+                          }
+                          onOpen={() => unwrap(section.id)}
+                        />
+                      )}
+                    </AnimatePresence>
 
-              <figcaption className="mt-6 text-center">
-                <div className="font-display text-4xl sm:text-6xl font-extrabold tracking-[-0.04em] text-rose-950/90 lowercase">
-                  {section.name}
-                </div>
-                <div className="font-caption mt-3 text-base sm:text-xl font-medium tracking-[-0.01em] text-rose-900/60">
-                  {section.caption}
-                </div>
-                <div className="mt-6 text-xs uppercase tracking-[0.35em] text-rose-900/35">
-                  Scroll to continue
-                </div>
-              </figcaption>
-            </figure>
+                    {/* “Polaroid” photo area */}
+                    <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-rose-50 border border-black/5">
+                      {section.image ? (
+                        <Image
+                          src={section.image.src}
+                          alt={section.image.alt}
+                          fill
+                          sizes="(max-width: 768px) 90vw, 460px"
+                          className="object-cover"
+                          priority={isNearActive}
+                          loading={isNearActive ? "eager" : "lazy"}
+                        />
+                      ) : (
+                        <div
+                          className={clsx(
+                            "absolute inset-0",
+                            "bg-gradient-to-br from-white via-white to-rose-100/60"
+                          )}
+                        />
+                      )}
+
+                      {/* subtle film grain */}
+                      <div className="absolute inset-0 opacity-[0.06] mix-blend-multiply pointer-events-none bg-[radial-gradient(circle_at_25%_20%,rgba(0,0,0,0.35)_0%,transparent_55%),radial-gradient(circle_at_70%_60%,rgba(0,0,0,0.25)_0%,transparent_60%)]" />
+                    </div>
+
+                    <figcaption className="mt-6 text-center">
+                      <div className="font-display text-3xl sm:text-5xl font-extrabold tracking-[-0.04em] text-rose-950/90 lowercase">
+                        {section.name}
+                      </div>
+                      <div className="font-caption mt-3 text-sm sm:text-lg font-medium tracking-[-0.01em] text-rose-900/60">
+                        {section.caption}
+                      </div>
+                      <div className="mt-5 text-[11px] uppercase tracking-[0.35em] text-rose-900/35">
+                        Click ↓ to continue
+                      </div>
+                    </figcaption>
+
+                    {/* After opening, show the flower badge in the card corner */}
+                    {unwrapStateById[section.id] === "revealed" && (
+                      <div className="pointer-events-none absolute bottom-4 right-4 z-20">
+                        <div className="relative h-14 w-14 sm:h-16 sm:w-16">
+                          <Image
+                            src={section.giftIcon.src}
+                            alt={section.giftIcon.alt}
+                            fill
+                            sizes="64px"
+                            className="object-contain drop-shadow-[0_18px_38px_rgba(0,0,0,0.18)]"
+                            priority={isNearActive}
+                            loading={isNearActive ? "eager" : "lazy"}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </figure>
                 </>
               );
             })()}
