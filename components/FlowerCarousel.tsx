@@ -166,7 +166,7 @@ export default function FlowerCarousel() {
         id: "roses",
         name: "roses",
         caption: "For the love you gave so freely.",
-        image: { src: "/mom7.jpg", alt: "Roses" },
+        image: { src: "/mom7.JPG", alt: "Roses" },
         backgroundClassName:
           "bg-gradient-to-b from-rose-50 via-white to-rose-100/40",
         accentClassName: "from-rose-200/60 to-rose-400/20",
@@ -178,7 +178,7 @@ export default function FlowerCarousel() {
         id: "sunflowers",
         name: "sunflowers",
         caption: "For the way you always turned us toward the light.",
-        image: { src: "/momyellow.jpg", alt: "Sunflowers" },
+        image: { src: "/momyellow.JPG", alt: "Sunflowers" },
         backgroundClassName:
           "bg-gradient-to-b from-amber-50 via-white to-yellow-100/40",
         accentClassName: "from-amber-200/70 to-yellow-400/20",
@@ -203,7 +203,7 @@ export default function FlowerCarousel() {
         id: "lilies",
         name: "lilies",
         caption: "For the peace you created at home.",
-        image: { src: "/mompeony.jpg", alt: "Lilies" },
+        image: { src: "/mompeony.JPG", alt: "Lilies" },
         backgroundClassName:
           "bg-gradient-to-b from-slate-50 via-white to-emerald-100/30",
         accentClassName: "from-emerald-200/50 to-slate-300/20",
@@ -646,9 +646,9 @@ export default function FlowerCarousel() {
                       </div>
                     </figcaption>
 
-              {/* Show the flower badge as soon as unwrapping starts */}
-              {unwrapStateById[section.id] !== "wrapped" && (
-                <div className="pointer-events-none absolute bottom-4 right-4 z-40">
+                    {/* Show the flower badge as soon as unwrapping starts */}
+                    {unwrapStateById[section.id] !== "wrapped" && (
+                      <div className="pointer-events-none absolute bottom-4 right-4 z-40">
                         <div className="relative h-14 w-14 sm:h-16 sm:w-16">
                           <Image
                             src={section.giftIcon.src}
