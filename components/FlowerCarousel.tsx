@@ -15,6 +15,7 @@ type FlowerSection = {
   accentClassName: string;
   flowerEmoji: string;
   wrapClassName: string;
+  giftIcon: { src: string; alt: string };
 };
 
 function clamp(n: number, min: number, max: number) {
@@ -24,11 +25,13 @@ function clamp(n: number, min: number, max: number) {
 function GiftWrapOverlay({
   flowerName,
   wrapClassName,
+  centerIcon,
   isOpening,
   onOpen,
 }: {
   flowerName: string;
   wrapClassName: string;
+  centerIcon: { src: string; alt: string };
   isOpening: boolean;
   onOpen: () => void;
 }) {
@@ -38,10 +41,10 @@ function GiftWrapOverlay({
       onClick={onOpen}
       disabled={isOpening}
       className={clsx(
-        "absolute inset-0 z-10 cursor-pointer select-none",
-        "rounded-xl overflow-hidden",
+        "absolute inset-0 z-30 cursor-pointer select-none",
+        "rounded-2xl overflow-hidden",
         "border border-black/5",
-        "shadow-inner",
+        "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.55)]",
         wrapClassName,
         isOpening && "pointer-events-none",
       )}
@@ -55,19 +58,24 @@ function GiftWrapOverlay({
       transition={{ duration: 0.55, ease: "easeOut" }}
     >
       {/* wrapping paper pattern */}
-      <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_20%_25%,rgba(255,255,255,0.65)_0%,transparent_55%),radial-gradient(circle_at_75%_65%,rgba(255,255,255,0.55)_0%,transparent_60%)]" />
-      <div className="absolute inset-0 opacity-[0.12] mix-blend-multiply bg-[repeating-linear-gradient(45deg,rgba(0,0,0,0.3)_0px,rgba(0,0,0,0.3)_1px,transparent_1px,transparent_9px)]" />
+      <div className="absolute inset-0 opacity-80 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.75)_0%,transparent_55%),radial-gradient(circle_at_78%_70%,rgba(255,255,255,0.6)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 opacity-[0.10] mix-blend-multiply bg-[repeating-linear-gradient(45deg,rgba(0,0,0,0.32)_0px,rgba(0,0,0,0.32)_1px,transparent_1px,transparent_10px)]" />
 
       {/* ribbon cross */}
-      <div className="absolute inset-y-0 left-1/2 w-10 -translate-x-1/2 bg-white/45 backdrop-blur-[1px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" />
-      <div className="absolute inset-x-0 top-1/2 h-10 -translate-y-1/2 bg-white/45 backdrop-blur-[1px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" />
+      <div className="absolute inset-y-0 left-1/2 w-12 -translate-x-1/2 bg-white/45 backdrop-blur-[1px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" />
+      <div className="absolute inset-x-0 top-1/2 h-12 -translate-y-1/2 bg-white/45 backdrop-blur-[1px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" />
 
-      {/* bow */}
+      {/* center flower icon */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="relative">
-          <div className="absolute -left-12 -top-6 h-12 w-16 rotate-[-18deg] rounded-[999px] bg-white/55 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]" />
-          <div className="absolute left-[-6px] -top-6 h-12 w-16 rotate-[18deg] rounded-[999px] bg-white/55 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]" />
-          <div className="h-6 w-6 rounded-full bg-white/70 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]" />
+        <div className="relative h-32 w-32 sm:h-40 sm:w-40">
+          <Image
+            src={centerIcon.src}
+            alt={centerIcon.alt}
+            fill
+            sizes="160px"
+            className="object-contain drop-shadow-[0_18px_42px_rgba(0,0,0,0.22)]"
+            priority={false}
+          />
         </div>
       </div>
 
@@ -145,73 +153,81 @@ export default function FlowerCarousel() {
   const sections = useMemo<FlowerSection[]>(
     () => [
       {
-        id: "rose",
-        name: "rose",
+        id: "roses",
+        name: "roses",
         caption: "For the love you gave so freely.",
+        image: { src: "/rose.png", alt: "Roses" },
         backgroundClassName:
           "bg-gradient-to-b from-rose-50 via-white to-rose-100/40",
         accentClassName: "from-rose-200/60 to-rose-400/20",
         flowerEmoji: "🌹",
         wrapClassName:
           "bg-gradient-to-br from-rose-100 via-rose-50 to-white",
+        giftIcon: { src: "/rose.png", alt: "Roses" },
       },
       {
-        id: "orchid",
-        name: "Orchid",
-        caption: "For your quiet strength and grace.",
-        backgroundClassName:
-          "bg-gradient-to-b from-fuchsia-50 via-white to-purple-100/40",
-        accentClassName: "from-fuchsia-200/60 to-purple-400/20",
-        flowerEmoji: "🌺",
-        wrapClassName:
-          "bg-gradient-to-br from-fuchsia-100 via-purple-50 to-white",
-      },
-      {
-        id: "cherry-blossom",
-        name: "Cherry Blossom",
-        caption: "For every gentle spring you brought into my life.",
-        image: {
-          src: "/assets/sakura-reference.png",
-          alt: "Cherry blossoms",
-        },
-        backgroundClassName:
-          "bg-gradient-to-b from-pink-50 via-white to-rose-100/40",
-        accentClassName: "from-pink-200/70 to-rose-400/20",
-        flowerEmoji: "🌸",
-        wrapClassName: "bg-gradient-to-br from-pink-100 via-rose-50 to-white",
-      },
-      {
-        id: "sunflower",
-        name: "Sunflower",
+        id: "sunflowers",
+        name: "sunflowers",
         caption: "For the way you always turned us toward the light.",
+        image: { src: "/sunflower.png", alt: "Sunflowers" },
         backgroundClassName:
           "bg-gradient-to-b from-amber-50 via-white to-yellow-100/40",
         accentClassName: "from-amber-200/70 to-yellow-400/20",
         flowerEmoji: "🌻",
         wrapClassName:
           "bg-gradient-to-br from-amber-100 via-yellow-50 to-white",
+        giftIcon: { src: "/sunflower.png", alt: "Sunflowers" },
       },
       {
-        id: "lily",
-        name: "Lily",
+        id: "tulips",
+        name: "tulips",
+        caption: "For the little joys you made feel big.",
+        image: { src: "/tulip.png", alt: "Tulips" },
+        backgroundClassName:
+          "bg-gradient-to-b from-rose-50 via-white to-orange-100/30",
+        accentClassName: "from-orange-200/60 to-rose-300/20",
+        flowerEmoji: "🌷",
+        wrapClassName:
+          "bg-gradient-to-br from-orange-100 via-rose-50 to-white",
+        giftIcon: { src: "/tulip.png", alt: "Tulips" },
+      },
+      {
+        id: "lilies",
+        name: "lilies",
         caption: "For the peace you created at home.",
+        image: { src: "/lily.png", alt: "Lilies" },
         backgroundClassName:
           "bg-gradient-to-b from-slate-50 via-white to-emerald-100/30",
         accentClassName: "from-emerald-200/50 to-slate-300/20",
-        flowerEmoji: "🤍",
+        flowerEmoji: "💮",
         wrapClassName:
           "bg-gradient-to-br from-emerald-50 via-slate-50 to-white",
+        giftIcon: { src: "/lily.png", alt: "Lilies" },
       },
       {
-        id: "lavender",
-        name: "Lavender",
+        id: "lotus",
+        name: "lotus",
         caption: "For the calm you gave me, again and again.",
+        image: { src: "/lotus.png", alt: "Lotus" },
         backgroundClassName:
           "bg-gradient-to-b from-indigo-50 via-white to-violet-100/40",
         accentClassName: "from-violet-200/60 to-indigo-400/20",
-        flowerEmoji: "🪻",
+        flowerEmoji: "🪷",
         wrapClassName:
           "bg-gradient-to-br from-violet-100 via-indigo-50 to-white",
+        giftIcon: { src: "/lotus.png", alt: "Lotus" },
+      },
+      {
+        id: "cherry-blossom",
+        name: "cherry blossom",
+        caption: "For every gentle spring you brought into my life.",
+        image: { src: "/cherryblossom.png", alt: "Cherry blossoms" },
+        backgroundClassName:
+          "bg-gradient-to-b from-pink-50 via-white to-rose-100/40",
+        accentClassName: "from-pink-200/70 to-rose-400/20",
+        flowerEmoji: "🌸",
+        wrapClassName: "bg-gradient-to-br from-pink-100 via-rose-50 to-white",
+        giftIcon: { src: "/cherryblossom.png", alt: "Cherry blossoms" },
       },
     ],
     [],
@@ -427,6 +443,12 @@ export default function FlowerCarousel() {
             )}
             aria-label={section.name}
           >
+            {/* Flower burst should feel like it fills the whole screen */}
+            <FlowerBurst
+              nonce={burstNonceById[section.id]}
+              emoji={section.flowerEmoji}
+            />
+
             {/* Soft ambient blobs */}
             <div
               className={clsx(
@@ -445,7 +467,7 @@ export default function FlowerCarousel() {
 
             <figure
               className={clsx(
-                "relative z-10 w-[min(92vw,760px)]",
+                "relative z-10 w-[min(92vw,760px)] overflow-hidden",
                 "bg-white/95 border border-black/5 shadow-[0_20px_60px_rgba(0,0,0,0.15)]",
                 "rounded-2xl",
                 "px-6 sm:px-10 pt-6 sm:pt-10 pb-8 sm:pb-10",
@@ -455,13 +477,21 @@ export default function FlowerCarousel() {
                 transform: `rotate(${idx % 2 === 0 ? -1.2 : 1.1}deg)`,
               }}
             >
+              <AnimatePresence>
+                {unwrapStateById[section.id] !== "revealed" && (
+                  <GiftWrapOverlay
+                    key={`wrap-${section.id}`}
+                    flowerName={section.name}
+                    wrapClassName={section.wrapClassName}
+                    centerIcon={section.giftIcon}
+                    isOpening={unwrapStateById[section.id] === "unwrapping"}
+                    onOpen={() => unwrap(section.id)}
+                  />
+                )}
+              </AnimatePresence>
+
               {/* “Polaroid” photo area */}
               <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-rose-50 border border-black/5">
-                <FlowerBurst
-                  nonce={burstNonceById[section.id]}
-                  emoji={section.flowerEmoji}
-                />
-
                 {section.image ? (
                   <Image
                     src={section.image.src}
@@ -482,18 +512,6 @@ export default function FlowerCarousel() {
 
                 {/* subtle film grain */}
                 <div className="absolute inset-0 opacity-[0.06] mix-blend-multiply pointer-events-none bg-[radial-gradient(circle_at_25%_20%,rgba(0,0,0,0.35)_0%,transparent_55%),radial-gradient(circle_at_70%_60%,rgba(0,0,0,0.25)_0%,transparent_60%)]" />
-
-                <AnimatePresence>
-                  {unwrapStateById[section.id] !== "revealed" && (
-                    <GiftWrapOverlay
-                      key={`wrap-${section.id}`}
-                      flowerName={section.name}
-                      wrapClassName={section.wrapClassName}
-                      isOpening={unwrapStateById[section.id] === "unwrapping"}
-                      onOpen={() => unwrap(section.id)}
-                    />
-                  )}
-                </AnimatePresence>
               </div>
 
               <figcaption className="mt-6 text-center">
