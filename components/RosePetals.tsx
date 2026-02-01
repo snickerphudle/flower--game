@@ -71,7 +71,9 @@ export default function RosePetals({
           width: p.sizePx,
           height: p.sizePx,
           opacity: p.opacity,
-          filter: `blur(${p.blurPx}px) drop-shadow(0 14px 28px rgba(0,0,0,0.10))`,
+          // Drop-shadow filters are expensive on lots of animated elements.
+          // Keep only a tiny blur (optional) to stay smooth.
+          filter: p.blurPx > 0 ? `blur(${p.blurPx}px)` : undefined,
           animationDuration: `${p.durationS}s`,
           animationDelay: `${p.delayS}s`,
           ["--petal-drift" as any]: `${p.driftPx}px`,

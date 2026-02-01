@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo } from "react";
 import clsx from "clsx";
 import { randomInt, randomRange, sample } from "@/lib/random";
@@ -47,7 +46,7 @@ export default function SunflowerPetals({
 
       return {
         key: `sf-petal-${i}-${Math.random().toString(16).slice(2)}`,
-        src: sample(PETAL_SOURCES),
+        src: sample([...PETAL_SOURCES]),
         leftPct: randomRange(-8, 108),
         sizePx: randomInt(18, 44),
         durationS,
@@ -82,7 +81,9 @@ export default function SunflowerPetals({
           width: p.sizePx,
           height: p.sizePx,
           opacity: p.opacity,
-          filter: `blur(${p.blurPx}px) drop-shadow(0 16px 34px rgba(0,0,0,0.10))`,
+          // Avoid expensive per-frame filters on lots of elements.
+          // A tiny blur is okay, but drop-shadow filters are costly.
+          filter: p.blurPx > 0 ? `blur(${p.blurPx}px)` : undefined,
           animationName: "sunflower-petal-fall",
           animationTimingFunction: "linear",
           animationIterationCount: "infinite",
@@ -107,14 +108,17 @@ export default function SunflowerPetals({
         return (
           <div key={p.key} className="sunflower-petal" style={style}>
             <div className="sunflower-petal__inner" style={innerStyle}>
-              <Image
+              {/* Plain <img> is much lighter than next/image for many tiny sprites */}
+              <img
                 src={p.src}
                 alt=""
                 width={p.sizePx}
                 height={p.sizePx}
                 className="select-none"
                 draggable={false}
-                priority={false}
+                loading="eager"
+                decoding="async"
+                style={{ width: "100%", height: "100%" }}
               />
             </div>
           </div>
