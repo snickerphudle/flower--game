@@ -165,7 +165,7 @@ export default function FlowerCarousel() {
     () => [
       {
         id: "roses",
-        name: "roses",
+        name: "rose",
         caption: "For the love you gave so freely.",
         image: { src: "/mom7.JPG", alt: "Roses" },
         backgroundClassName:
@@ -177,7 +177,7 @@ export default function FlowerCarousel() {
       },
       {
         id: "sunflowers",
-        name: "sunflowers",
+        name: "sunflower",
         caption: "For the way you always turned us toward the light.",
         image: { src: "/momyellow.JPG", alt: "Sunflowers" },
         backgroundClassName:
@@ -190,7 +190,7 @@ export default function FlowerCarousel() {
       },
       {
         id: "tulips",
-        name: "tulips",
+        name: "tulip",
         caption: "For the little joys you made feel big.",
         image: { src: "/mom5.jpg", alt: "Tulips" },
         backgroundClassName:
@@ -202,7 +202,7 @@ export default function FlowerCarousel() {
       },
       {
         id: "lilies",
-        name: "lilies",
+        name: "lily",
         caption: "For the peace you created at home.",
         image: { src: "/mompeony.JPG", alt: "Lilies" },
         backgroundClassName:
