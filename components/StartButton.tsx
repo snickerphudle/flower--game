@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { getRosesFountainBgm } from "@/lib/rosesFountainBgm";
 
 interface StartButtonProps {
   onStartAction: () => void;
@@ -14,9 +15,8 @@ export default function StartButton({ onStartAction }: StartButtonProps) {
 
   useEffect(() => {
     // Preload for instant playback on click.
-    const audio = new Audio("/rosesfountain.mp3");
-    audio.preload = "auto";
-    startupAudioRef.current = audio;
+    // Use the shared BGM instance so it can continue across screens.
+    startupAudioRef.current = getRosesFountainBgm();
 
     return () => {
       // Best-effort cleanup
@@ -29,7 +29,8 @@ export default function StartButton({ onStartAction }: StartButtonProps) {
     setIsClicked(true);
 
     // Must be triggered from user gesture for best autoplay compatibility.
-    const audio = startupAudioRef.current ?? new Audio("/startup1.mp3");
+    const audio = startupAudioRef.current ?? getRosesFountainBgm();
+    audio.loop = true;
     try {
       audio.currentTime = 0;
     } catch {

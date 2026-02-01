@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { randomRange, randomInt } from "@/lib/random";
+import { getRosesFountainBgm } from "@/lib/rosesFountainBgm";
 
 type FlowerSection = {
   id: string;
@@ -233,9 +234,6 @@ export default function FlowerCarousel() {
     [],
   );
 
-  const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const bgmStartedRef = useRef(false);
-
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
 
@@ -261,29 +259,13 @@ export default function FlowerCarousel() {
   }, [activeIndex]);
 
   useEffect(() => {
-    // Play background music on first landing (best-effort; browsers may still block).
-    if (bgmStartedRef.current) return;
-    bgmStartedRef.current = true;
-
-    const audio = new Audio("/rosesfountain.mp3");
-    audio.preload = "auto";
+    // Ensure the background music is playing when the carousel is shown.
+    const audio = getRosesFountainBgm();
     audio.loop = true;
     audio.volume = 0.9;
-    bgmRef.current = audio;
-
     void audio.play().catch(() => {
       // ignore autoplay restrictions
     });
-
-    return () => {
-      try {
-        audio.pause();
-        audio.currentTime = 0;
-      } catch {
-        // ignore
-      }
-      if (bgmRef.current === audio) bgmRef.current = null;
-    };
   }, []);
 
   useEffect(() => {
