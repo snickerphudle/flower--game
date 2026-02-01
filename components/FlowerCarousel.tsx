@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
+import { randomRange, randomInt } from "@/lib/random";
 
 type FlowerSection = {
   id: string;
@@ -11,10 +13,132 @@ type FlowerSection = {
   image?: { src: string; alt: string };
   backgroundClassName: string;
   accentClassName: string;
+  flowerEmoji: string;
+  wrapClassName: string;
 };
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
+}
+
+function GiftWrapOverlay({
+  flowerName,
+  wrapClassName,
+  isOpening,
+  onOpen,
+}: {
+  flowerName: string;
+  wrapClassName: string;
+  isOpening: boolean;
+  onOpen: () => void;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      disabled={isOpening}
+      className={clsx(
+        "absolute inset-0 z-10 cursor-pointer select-none",
+        "rounded-xl overflow-hidden",
+        "border border-black/5",
+        "shadow-inner",
+        wrapClassName,
+        isOpening && "pointer-events-none",
+      )}
+      aria-label={`Unwrap ${flowerName}`}
+      initial={false}
+      animate={
+        isOpening
+          ? { opacity: 0, scale: 1.02, filter: "blur(4px)" }
+          : { opacity: 1, scale: 1, filter: "blur(0px)" }
+      }
+      transition={{ duration: 0.55, ease: "easeOut" }}
+    >
+      {/* wrapping paper pattern */}
+      <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_20%_25%,rgba(255,255,255,0.65)_0%,transparent_55%),radial-gradient(circle_at_75%_65%,rgba(255,255,255,0.55)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 opacity-[0.12] mix-blend-multiply bg-[repeating-linear-gradient(45deg,rgba(0,0,0,0.3)_0px,rgba(0,0,0,0.3)_1px,transparent_1px,transparent_9px)]" />
+
+      {/* ribbon cross */}
+      <div className="absolute inset-y-0 left-1/2 w-10 -translate-x-1/2 bg-white/45 backdrop-blur-[1px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" />
+      <div className="absolute inset-x-0 top-1/2 h-10 -translate-y-1/2 bg-white/45 backdrop-blur-[1px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]" />
+
+      {/* bow */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="relative">
+          <div className="absolute -left-12 -top-6 h-12 w-16 rotate-[-18deg] rounded-[999px] bg-white/55 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]" />
+          <div className="absolute left-[-6px] -top-6 h-12 w-16 rotate-[18deg] rounded-[999px] bg-white/55 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]" />
+          <div className="h-6 w-6 rounded-full bg-white/70 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]" />
+        </div>
+      </div>
+
+      {/* prompt */}
+      <div className="absolute inset-0 flex items-end justify-center pb-4">
+        <div className="px-3 py-1.5 rounded-full bg-white/55 backdrop-blur text-[11px] tracking-[0.35em] uppercase text-rose-950/55">
+          Tap to unwrap
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+function FlowerBurst({
+  nonce,
+  emoji,
+}: {
+  nonce: number | undefined;
+  emoji: string;
+}) {
+  // Recompute particles per trigger.
+  const particles = useMemo(() => {
+    if (!nonce) return [];
+    return Array.from({ length: 22 }).map((_, i) => {
+      const x = randomRange(-160, 160);
+      const y = randomRange(-220, -380);
+      const rotate = randomRange(-140, 140);
+      const delay = randomRange(0, 0.18);
+      const size = randomInt(18, 34);
+      const drift = randomRange(-40, 40);
+      return { key: `${nonce}-${i}`, x, y, rotate, delay, size, drift };
+    });
+  }, [nonce]);
+
+  return (
+    <AnimatePresence>
+      {nonce ? (
+        <motion.div
+          key={nonce}
+          className="absolute inset-0 z-20 pointer-events-none"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {particles.map((p) => (
+            <motion.span
+              key={p.key}
+              className="absolute left-1/2 top-1/2"
+              style={{ fontSize: p.size, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.12))" }}
+              initial={{ opacity: 0, scale: 0.6, x: 0, y: 0, rotate: 0 }}
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0.6, 1.25, 0.9],
+                x: [0, p.x, p.x + p.drift],
+                y: [0, p.y, p.y - 40],
+                rotate: [0, p.rotate],
+              }}
+              transition={{
+                duration: 1.15,
+                ease: "easeOut",
+                delay: p.delay,
+              }}
+            >
+              {emoji}
+            </motion.span>
+          ))}
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
 }
 
 export default function FlowerCarousel() {
@@ -27,6 +151,9 @@ export default function FlowerCarousel() {
         backgroundClassName:
           "bg-gradient-to-b from-rose-50 via-white to-rose-100/40",
         accentClassName: "from-rose-200/60 to-rose-400/20",
+        flowerEmoji: "🌹",
+        wrapClassName:
+          "bg-gradient-to-br from-rose-100 via-rose-50 to-white",
       },
       {
         id: "orchid",
@@ -35,6 +162,9 @@ export default function FlowerCarousel() {
         backgroundClassName:
           "bg-gradient-to-b from-fuchsia-50 via-white to-purple-100/40",
         accentClassName: "from-fuchsia-200/60 to-purple-400/20",
+        flowerEmoji: "🌺",
+        wrapClassName:
+          "bg-gradient-to-br from-fuchsia-100 via-purple-50 to-white",
       },
       {
         id: "cherry-blossom",
@@ -47,6 +177,8 @@ export default function FlowerCarousel() {
         backgroundClassName:
           "bg-gradient-to-b from-pink-50 via-white to-rose-100/40",
         accentClassName: "from-pink-200/70 to-rose-400/20",
+        flowerEmoji: "🌸",
+        wrapClassName: "bg-gradient-to-br from-pink-100 via-rose-50 to-white",
       },
       {
         id: "sunflower",
@@ -55,6 +187,9 @@ export default function FlowerCarousel() {
         backgroundClassName:
           "bg-gradient-to-b from-amber-50 via-white to-yellow-100/40",
         accentClassName: "from-amber-200/70 to-yellow-400/20",
+        flowerEmoji: "🌻",
+        wrapClassName:
+          "bg-gradient-to-br from-amber-100 via-yellow-50 to-white",
       },
       {
         id: "lily",
@@ -63,6 +198,9 @@ export default function FlowerCarousel() {
         backgroundClassName:
           "bg-gradient-to-b from-slate-50 via-white to-emerald-100/30",
         accentClassName: "from-emerald-200/50 to-slate-300/20",
+        flowerEmoji: "🤍",
+        wrapClassName:
+          "bg-gradient-to-br from-emerald-50 via-slate-50 to-white",
       },
       {
         id: "lavender",
@@ -71,6 +209,9 @@ export default function FlowerCarousel() {
         backgroundClassName:
           "bg-gradient-to-b from-indigo-50 via-white to-violet-100/40",
         accentClassName: "from-violet-200/60 to-indigo-400/20",
+        flowerEmoji: "🪻",
+        wrapClassName:
+          "bg-gradient-to-br from-violet-100 via-indigo-50 to-white",
       },
     ],
     [],
@@ -86,6 +227,18 @@ export default function FlowerCarousel() {
   const activeIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
   const cooldownUntilRef = useRef(0);
+
+  const [unwrapStateById, setUnwrapStateById] = useState<
+    Record<string, "wrapped" | "unwrapping" | "revealed">
+  >(() =>
+    Object.fromEntries(
+      sections.map((s) => [s.id, "wrapped" as const]),
+    ) as Record<string, "wrapped" | "unwrapping" | "revealed">,
+  );
+  const [burstNonceById, setBurstNonceById] = useState<Record<string, number>>(
+    () => Object.fromEntries(sections.map((s) => [s.id, 0])),
+  );
+  const unwrapTimeoutsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     activeIndexRef.current = activeIndex;
@@ -116,6 +269,35 @@ export default function FlowerCarousel() {
       if (bgmRef.current === audio) bgmRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    return () => {
+      // Clear any pending unwrap timers.
+      for (const id of Object.keys(unwrapTimeoutsRef.current)) {
+        window.clearTimeout(unwrapTimeoutsRef.current[id]);
+      }
+      unwrapTimeoutsRef.current = {};
+    };
+  }, []);
+
+  const unwrap = (sectionId: string) => {
+    setUnwrapStateById((prev) => {
+      const current = prev[sectionId] ?? "wrapped";
+      if (current !== "wrapped") return prev;
+      return { ...prev, [sectionId]: "unwrapping" };
+    });
+
+    setBurstNonceById((prev) => ({
+      ...prev,
+      [sectionId]: (prev[sectionId] ?? 0) + 1,
+    }));
+
+    // Reveal the image after the burst.
+    const t = window.setTimeout(() => {
+      setUnwrapStateById((prev) => ({ ...prev, [sectionId]: "revealed" }));
+    }, 750);
+    unwrapTimeoutsRef.current[sectionId] = t;
+  };
 
   const scrollToIndex = (index: number) => {
     const next = clamp(index, 0, sections.length - 1);
@@ -275,6 +457,11 @@ export default function FlowerCarousel() {
             >
               {/* “Polaroid” photo area */}
               <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-rose-50 border border-black/5">
+                <FlowerBurst
+                  nonce={burstNonceById[section.id]}
+                  emoji={section.flowerEmoji}
+                />
+
                 {section.image ? (
                   <Image
                     src={section.image.src}
@@ -295,6 +482,18 @@ export default function FlowerCarousel() {
 
                 {/* subtle film grain */}
                 <div className="absolute inset-0 opacity-[0.06] mix-blend-multiply pointer-events-none bg-[radial-gradient(circle_at_25%_20%,rgba(0,0,0,0.35)_0%,transparent_55%),radial-gradient(circle_at_70%_60%,rgba(0,0,0,0.25)_0%,transparent_60%)]" />
+
+                <AnimatePresence>
+                  {unwrapStateById[section.id] !== "revealed" && (
+                    <GiftWrapOverlay
+                      key={`wrap-${section.id}`}
+                      flowerName={section.name}
+                      wrapClassName={section.wrapClassName}
+                      isOpening={unwrapStateById[section.id] === "unwrapping"}
+                      onOpen={() => unwrap(section.id)}
+                    />
+                  )}
+                </AnimatePresence>
               </div>
 
               <figcaption className="mt-6 text-center">
