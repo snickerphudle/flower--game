@@ -646,9 +646,9 @@ export default function FlowerCarousel() {
                       </div>
                     </figcaption>
 
-                    {/* After opening, show the flower badge in the card corner */}
-                    {unwrapStateById[section.id] === "revealed" && (
-                      <div className="pointer-events-none absolute bottom-4 right-4 z-20">
+              {/* Show the flower badge as soon as unwrapping starts */}
+              {unwrapStateById[section.id] !== "wrapped" && (
+                <div className="pointer-events-none absolute bottom-4 right-4 z-40">
                         <div className="relative h-14 w-14 sm:h-16 sm:w-16">
                           <Image
                             src={section.giftIcon.src}
