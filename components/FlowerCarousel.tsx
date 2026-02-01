@@ -8,6 +8,7 @@ import { randomRange, randomInt } from "@/lib/random";
 import { getRosesFountainBgm } from "@/lib/rosesFountainBgm";
 import RosePetals from "./RosePetals";
 import SunflowerPetals from "./SunflowerPetals";
+import WindPetals from "./WindPetals";
 
 type FlowerSection = {
   id: string;
@@ -29,12 +30,14 @@ function GiftWrapOverlay({
   flowerName,
   wrapClassName,
   centerIcon,
+  centerIconPriority,
   isOpening,
   onOpen,
 }: {
   flowerName: string;
   wrapClassName: string;
   centerIcon: { src: string; alt: string };
+  centerIconPriority?: boolean;
   isOpening: boolean;
   onOpen: () => void;
 }) {
@@ -77,7 +80,8 @@ function GiftWrapOverlay({
             fill
             sizes="160px"
             className="object-contain drop-shadow-[0_18px_42px_rgba(0,0,0,0.22)]"
-            priority={false}
+            priority={centerIconPriority ?? false}
+            loading={centerIconPriority ? "eager" : "lazy"}
           />
         </div>
       </div>
@@ -242,7 +246,9 @@ export default function FlowerCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
-  const cooldownUntilRef = useRef(0);
+  // Trackpad “momentum” can fire many wheel events; treat each gesture as one jump.
+  const wheelGestureActiveRef = useRef(false);
+  const wheelGestureEndTimerRef = useRef<number | null>(null);
 
   const [unwrapStateById, setUnwrapStateById] = useState<
     Record<string, "wrapped" | "unwrapping" | "revealed">
@@ -304,9 +310,25 @@ export default function FlowerCarousel() {
     const el = sectionRefs.current[next];
     if (!el) return;
 
+    // Prevent repeated triggers from wheel momentum / key repeat.
+    if (isAnimatingRef.current) return;
     isAnimatingRef.current = true;
     setActiveIndex(next);
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Scroll precisely to the section's top (more stable than scrollIntoView with snap).
+    const root = containerRef.current;
+    if (root) {
+      // Temporarily disable snapping while we animate to avoid snap “tugging” mid-scroll.
+      const prevSnap = root.style.scrollSnapType;
+      root.style.scrollSnapType = "none";
+      root.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+
+      // Restore snap after the smooth scroll settles.
+      window.setTimeout(() => {
+        root.style.scrollSnapType = prevSnap;
+      }, 780);
+    } else {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     // Best-effort unlock after the smooth scroll settles.
     window.setTimeout(() => {
@@ -320,6 +342,10 @@ export default function FlowerCarousel() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        // During our programmatic scroll, the most-visible section can fluctuate.
+        // Ignore those intermediate updates to prevent “toggling”/jumping UI.
+        if (isAnimatingRef.current) return;
+
         // Pick the most visible intersecting section (threshold helps, but be safe).
         const candidates = entries
           .filter((e) => e.isIntersecting)
@@ -350,10 +376,27 @@ export default function FlowerCarousel() {
       if (Math.abs(e.deltaY) < 8) return;
       e.preventDefault();
 
-      const now = performance.now();
       if (isAnimatingRef.current) return;
-      if (now < cooldownUntilRef.current) return;
-      cooldownUntilRef.current = now + 650;
+      if (wheelGestureActiveRef.current) {
+        // Keep extending the gesture window while events keep coming.
+        if (wheelGestureEndTimerRef.current != null) {
+          window.clearTimeout(wheelGestureEndTimerRef.current);
+        }
+        wheelGestureEndTimerRef.current = window.setTimeout(() => {
+          wheelGestureActiveRef.current = false;
+          wheelGestureEndTimerRef.current = null;
+        }, 180);
+        return;
+      }
+
+      wheelGestureActiveRef.current = true;
+      if (wheelGestureEndTimerRef.current != null) {
+        window.clearTimeout(wheelGestureEndTimerRef.current);
+      }
+      wheelGestureEndTimerRef.current = window.setTimeout(() => {
+        wheelGestureActiveRef.current = false;
+        wheelGestureEndTimerRef.current = null;
+      }, 180);
 
       const dir = e.deltaY > 0 ? 1 : -1;
       scrollToIndex(activeIndexRef.current + dir);
@@ -365,6 +408,7 @@ export default function FlowerCarousel() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (isAnimatingRef.current) return;
       if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
         scrollToIndex(activeIndexRef.current + 1);
@@ -416,6 +460,8 @@ export default function FlowerCarousel() {
         aria-label="Memories"
       >
         {sections.map((section, idx) => (
+          // Eager-load current + adjacent section assets to avoid a flash during snap scrolling.
+          // (There are only a handful of images, so this is cheap and feels much smoother.)
           <section
             key={section.id}
             ref={(node) => {
@@ -427,6 +473,14 @@ export default function FlowerCarousel() {
             )}
             aria-label={section.name}
           >
+            {/*
+              Determine “near active” inside the map so it stays stable with current activeIndex.
+              We keep it simple (current, previous, next).
+            */}
+            {(() => {
+              const isNearActive = Math.abs(idx - activeIndex) <= 1;
+              return (
+                <>
             {/* Flower burst should feel like it fills the whole screen */}
             <FlowerBurst
               nonce={burstNonceById[section.id]}
@@ -441,6 +495,32 @@ export default function FlowerCarousel() {
             {/* Sunflower-only gentle drifting petals */}
             {section.id === "sunflowers" && (
               <SunflowerPetals className="z-[6] opacity-80" />
+            )}
+
+            {/* Petal PNG overlays for the remaining flower screens */}
+            {section.id === "lotus" && (
+              <WindPetals
+                className="z-[6] opacity-80"
+                sources={["/lotus0.png", "/lotus1.png", "/lotus2.png", "/lotus3.png"]}
+              />
+            )}
+            {section.id === "tulips" && (
+              <WindPetals
+                className="z-[6] opacity-80"
+                sources={["/tulip0.png", "/tulip1.png", "/tulip2.png", "/tulip3.png"]}
+              />
+            )}
+            {section.id === "lilies" && (
+              <WindPetals
+                className="z-[6] opacity-80"
+                sources={["/lily0.png", "/lily1.png", "/lily2.png", "/lily3.png"]}
+              />
+            )}
+            {section.id === "cherry-blossom" && (
+              <WindPetals
+                className="z-[6] opacity-80"
+                sources={["/cherry0.png", "/cherry1.png", "/cherry2.png", "/cherry3.png"]}
+              />
             )}
 
             {/* Soft ambient blobs */}
@@ -478,6 +558,7 @@ export default function FlowerCarousel() {
                     flowerName={section.name}
                     wrapClassName={section.wrapClassName}
                     centerIcon={section.giftIcon}
+                    centerIconPriority={isNearActive}
                     isOpening={unwrapStateById[section.id] === "unwrapping"}
                     onOpen={() => unwrap(section.id)}
                   />
@@ -493,7 +574,8 @@ export default function FlowerCarousel() {
                     fill
                     sizes="(max-width: 768px) 92vw, 760px"
                     className="object-cover"
-                    priority={idx === 0}
+                    priority={isNearActive}
+                    loading={isNearActive ? "eager" : "lazy"}
                   />
                 ) : (
                   <div
@@ -520,6 +602,9 @@ export default function FlowerCarousel() {
                 </div>
               </figcaption>
             </figure>
+                </>
+              );
+            })()}
           </section>
         ))}
       </div>

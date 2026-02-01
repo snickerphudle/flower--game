@@ -8,6 +8,9 @@
 :root {
   --background: #fff1f2; /* rose-50 */
   --foreground: #881337; /* rose-900 */
+  --pointer-x: 50vw;
+  --pointer-y: 35vh;
+  --pointer-active: 0;
 }
 
 body {
@@ -57,6 +60,111 @@ body {
 
 .animate-magical-pulse {
   animation: magical-pulse 1s ease-out forwards;
+}
+
+/* Cursor/touch-following glow */
+.pointer-glow {
+  opacity: calc(0.55 * var(--pointer-active, 0) + 0.22);
+  transition: opacity 350ms ease;
+  background:
+    radial-gradient(
+      420px circle at var(--pointer-x) var(--pointer-y),
+      rgba(253, 164, 175, 0.22),
+      rgba(251, 191, 36, 0.10) 32%,
+      rgba(255, 241, 242, 0) 62%
+    ),
+    radial-gradient(
+      900px circle at 50% 15%,
+      rgba(255, 255, 255, 0.22),
+      rgba(255, 241, 242, 0) 65%
+    );
+  mix-blend-mode: multiply;
+}
+
+/* Ambient sparkles */
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.9;
+  }
+}
+
+@keyframes sparkle-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -22px, 0);
+  }
+}
+
+.ambient-sparkles {
+  contain: layout paint;
+}
+
+.sparkle {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(255, 255, 255, 0.95),
+    rgba(253, 164, 175, 0.6) 40%,
+    rgba(251, 113, 133, 0.08) 70%,
+    rgba(255, 241, 242, 0) 100%
+  );
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+  animation-name: sparkle-twinkle, sparkle-drift;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-duration: var(--sparkle-twinkle-duration, 4s),
+    var(--sparkle-drift-duration, 18s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pointer-glow {
+    transition: none;
+  }
+  .sparkle {
+    animation-duration: 10s, 60s;
+  }
+}
+
+/* Generic wind petals (image-based) */
+@keyframes wind-petal-fall {
+  0% {
+    transform: translate3d(0, -18vh, 0) rotate(var(--wind-rot0, 0deg));
+  }
+  100% {
+    transform: translate3d(var(--wind-drift, 0px), 118vh, 0)
+      rotate(var(--wind-rot1, 220deg));
+  }
+}
+
+@keyframes wind-petal-sway {
+  0%,
+  100% {
+    transform: translateX(calc(var(--wind-sway, 18px) * -1));
+  }
+  50% {
+    transform: translateX(var(--wind-sway, 18px));
+  }
+}
+
+.wind-petals {
+  contain: layout paint;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wind-petal,
+  .wind-petal__inner {
+    animation-duration: 60s !important;
+    animation-timing-function: linear !important;
+  }
 }
 
 /* Rose petals drifting in the wind */
