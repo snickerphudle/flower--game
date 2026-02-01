@@ -6,6 +6,8 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { randomRange, randomInt } from "@/lib/random";
 import { getRosesFountainBgm } from "@/lib/rosesFountainBgm";
+import RosePetals from "./RosePetals";
+import SunflowerPetals from "./SunflowerPetals";
 
 type FlowerSection = {
   id: string;
@@ -430,6 +432,16 @@ export default function FlowerCarousel() {
               nonce={burstNonceById[section.id]}
               emoji={section.flowerEmoji}
             />
+
+            {/* Rose-only gentle drifting petals */}
+            {section.id === "roses" && (
+              <RosePetals className="z-[6] opacity-90" />
+            )}
+
+            {/* Sunflower-only gentle drifting petals */}
+            {section.id === "sunflowers" && (
+              <SunflowerPetals className="z-[6] opacity-80" />
+            )}
 
             {/* Soft ambient blobs */}
             <div

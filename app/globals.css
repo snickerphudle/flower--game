@@ -58,3 +58,107 @@ body {
 .animate-magical-pulse {
   animation: magical-pulse 1s ease-out forwards;
 }
+
+/* Rose petals drifting in the wind */
+@keyframes rose-petal-fall {
+  0% {
+    transform: translate3d(0, -18vh, 0) rotate(var(--petal-rot0, 0deg));
+  }
+  100% {
+    transform: translate3d(var(--petal-drift, 0px), 118vh, 0)
+      rotate(var(--petal-rot1, 220deg));
+  }
+}
+
+@keyframes rose-petal-sway {
+  0%,
+  100% {
+    transform: translateX(calc(var(--petal-sway, 18px) * -1));
+  }
+  50% {
+    transform: translateX(var(--petal-sway, 18px));
+  }
+}
+
+.rose-petals {
+  contain: layout paint;
+}
+
+.rose-petal {
+  position: absolute;
+  top: 0;
+  animation-name: rose-petal-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.rose-petal__inner {
+  width: 100%;
+  height: 100%;
+  animation-name: rose-petal-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rose-petal,
+  .rose-petal__inner {
+    /* Keep a very subtle motion instead of fully disabling. */
+    animation-duration: 60s !important;
+    animation-timing-function: linear !important;
+  }
+}
+
+/* Sunflower petals drifting in the wind */
+@keyframes sunflower-petal-fall {
+  0% {
+    transform: translate3d(0, -18vh, 0) rotate(var(--sf-rot0, 0deg));
+  }
+  100% {
+    transform: translate3d(var(--sf-drift, 0px), 118vh, 0)
+      rotate(var(--sf-rot1, 220deg));
+  }
+}
+
+@keyframes sunflower-petal-sway {
+  0%,
+  100% {
+    transform: translateX(calc(var(--sf-sway, 18px) * -1));
+  }
+  50% {
+    transform: translateX(var(--sf-sway, 18px));
+  }
+}
+
+.sunflower-petals {
+  contain: layout paint;
+}
+
+.sunflower-petal {
+  position: absolute;
+  top: 0;
+  animation-name: sunflower-petal-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.sunflower-petal__inner {
+  width: 100%;
+  height: 100%;
+  animation-name: sunflower-petal-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sunflower-petal,
+  .sunflower-petal__inner {
+    /* Keep a very subtle motion instead of fully disabling. */
+    animation-duration: 60s !important;
+    animation-timing-function: linear !important;
+  }
+}
