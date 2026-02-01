@@ -22,7 +22,7 @@ type Petal = {
 
 export default function RosePetals({
   enabled = true,
-  count = 18,
+  count = 100,
   className,
 }: {
   enabled?: boolean;
@@ -61,7 +61,7 @@ export default function RosePetals({
     <div
       className={clsx(
         "rose-petals absolute inset-0 overflow-hidden pointer-events-none",
-        className,
+        className
       )}
       aria-hidden="true"
     >
@@ -96,17 +96,9 @@ export default function RosePetals({
                 focusable="false"
               >
                 <defs>
-                  <radialGradient
-                    id="petalGlow"
-                    cx="30%"
-                    cy="26%"
-                    r="80%"
-                  >
+                  <radialGradient id="petalGlow" cx="30%" cy="26%" r="80%">
                     <stop offset="0%" stopColor="rgba(255,255,255,0.75)" />
-                    <stop
-                      offset="40%"
-                      stopColor="rgba(251,113,133,0.75)"
-                    />
+                    <stop offset="40%" stopColor="rgba(251,113,133,0.75)" />
                     <stop offset="100%" stopColor="rgba(225,29,72,0.80)" />
                   </radialGradient>
                 </defs>

@@ -489,36 +489,40 @@ export default function FlowerCarousel() {
 
             {/* Rose-only gentle drifting petals */}
             {section.id === "roses" && (
-              <RosePetals className="z-[6] opacity-90" />
+              <RosePetals className="z-[6] opacity-90" count={48} />
             )}
 
             {/* Sunflower-only gentle drifting petals */}
             {section.id === "sunflowers" && (
-              <SunflowerPetals className="z-[6] opacity-80" />
+              <SunflowerPetals className="z-[6] opacity-80" count={44} />
             )}
 
             {/* Petal PNG overlays for the remaining flower screens */}
             {section.id === "lotus" && (
               <WindPetals
                 className="z-[6] opacity-80"
+                count={36}
                 sources={["/lotus0.png", "/lotus1.png", "/lotus2.png", "/lotus3.png"]}
               />
             )}
             {section.id === "tulips" && (
               <WindPetals
                 className="z-[6] opacity-80"
+                count={44}
                 sources={["/tulip0.png", "/tulip1.png", "/tulip2.png", "/tulip3.png"]}
               />
             )}
             {section.id === "lilies" && (
               <WindPetals
                 className="z-[6] opacity-80"
+                count={34}
                 sources={["/lily0.png", "/lily1.png", "/lily2.png", "/lily3.png"]}
               />
             )}
             {section.id === "cherry-blossom" && (
               <WindPetals
                 className="z-[6] opacity-80"
+                count={60}
                 sources={["/cherry0.png", "/cherry1.png", "/cherry2.png", "/cherry3.png"]}
               />
             )}

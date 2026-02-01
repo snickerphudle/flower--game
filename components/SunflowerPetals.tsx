@@ -31,7 +31,7 @@ type Petal = {
 
 export default function SunflowerPetals({
   enabled = true,
-  count = 16,
+  count = 100,
   className,
 }: {
   enabled?: boolean;
@@ -70,7 +70,7 @@ export default function SunflowerPetals({
     <div
       className={clsx(
         "sunflower-petals absolute inset-0 overflow-hidden pointer-events-none",
-        className,
+        className
       )}
       aria-hidden="true"
     >
@@ -123,4 +123,3 @@ export default function SunflowerPetals({
     </div>
   );
 }
-

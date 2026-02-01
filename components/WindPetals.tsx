@@ -25,7 +25,7 @@ type Petal = {
 export default function WindPetals({
   sources,
   enabled = true,
-  count = 16,
+  count = 100,
   className,
 }: {
   sources: string[];
@@ -39,7 +39,7 @@ export default function WindPetals({
     if (!enabled) return [];
     if (!sources.length) return [];
 
-    const effectiveCount = shouldReduceMotion ? Math.min(count, 6) : count;
+    const effectiveCount = shouldReduceMotion ? Math.min(count, 12) : count;
 
     return Array.from({ length: effectiveCount }).map((_, i) => {
       const durationS = randomRange(10, 18);
@@ -70,7 +70,7 @@ export default function WindPetals({
     <div
       className={clsx(
         "wind-petals absolute inset-0 overflow-hidden pointer-events-none",
-        className,
+        className
       )}
       aria-hidden="true"
     >
@@ -114,7 +114,11 @@ export default function WindPetals({
             },
             rotate: shouldReduceMotion
               ? { duration: p.durationS, repeat: Infinity, ease: "linear" }
-              : { duration: p.durationS * 0.8, repeat: Infinity, ease: "linear" },
+              : {
+                  duration: p.durationS * 0.8,
+                  repeat: Infinity,
+                  ease: "linear",
+                },
             opacity: {
               duration: p.durationS,
               repeat: Infinity,
@@ -143,4 +147,3 @@ export default function WindPetals({
     </div>
   );
 }
-
