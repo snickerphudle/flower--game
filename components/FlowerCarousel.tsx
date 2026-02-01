@@ -429,14 +429,28 @@ export default function FlowerCarousel() {
       const isSpace =
         e.code === "Space" || e.key === " " || e.key === "Spacebar";
 
-      // Spacebar should unwrap the current present.
+      // Spacebar is the primary action:
+      // - if wrapped: unwrap
+      // - if revealed: advance to next section
       if (isSpace) {
         e.preventDefault();
         const idx = activeIndexRef.current;
         const sectionId = sections[idx]?.id;
         if (!sectionId) return;
         const state = unwrapStateById[sectionId] ?? "wrapped";
-        if (state === "wrapped") unwrap(sectionId);
+        if (state === "wrapped") {
+          unwrap(sectionId);
+          return;
+        }
+        if (state === "revealed") {
+          if (idx < sections.length - 1) {
+            scrollToIndex(idx + 1);
+            return;
+          }
+          // Last card (cherry blossom): spacebar advances to the final screen.
+          setShowFinal(true);
+          return;
+        }
         return;
       }
 
@@ -659,30 +673,13 @@ export default function FlowerCarousel() {
                       <div className="font-caption mt-3 text-sm sm:text-lg font-medium tracking-[-0.01em] text-rose-900/60">
                         {section.caption}
                       </div>
-                      {section.id === "cherry-blossom" &&
-                      (unwrapStateById[section.id] ?? "wrapped") ===
-                        "revealed" ? (
-                        <div className="mt-6 flex justify-center">
-                          <button
-                            type="button"
-                            onClick={() => setShowFinal(true)}
-                            className={clsx(
-                              "px-5 py-3 rounded-full",
-                              "bg-white/80 backdrop-blur",
-                              "border border-black/5",
-                              "shadow-[0_18px_55px_rgba(0,0,0,0.14)]",
-                              "text-xs sm:text-sm tracking-[0.25em] uppercase text-rose-900/70",
-                              "hover:bg-white/90 transition-colors"
-                            )}
-                          >
-                            continue →
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="mt-5 text-[11px] uppercase tracking-[0.35em] text-rose-900/35">
-                          Click ↓ to continue
-                        </div>
-                      )}
+                      <div className="mt-5 text-[11px] uppercase tracking-[0.35em] text-rose-900/35">
+                        {section.id === "cherry-blossom" &&
+                        (unwrapStateById[section.id] ?? "wrapped") ===
+                          "revealed"
+                          ? "Press space for the final screen"
+                          : "Press space to continue"}
+                      </div>
                     </figcaption>
 
                     {/* Show the flower badge as soon as unwrapping starts */}
