@@ -409,7 +409,22 @@ export default function FlowerCarousel() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isAnimatingRef.current) return;
-      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+
+      const isSpace =
+        e.code === "Space" || e.key === " " || e.key === "Spacebar";
+
+      // Spacebar should unwrap the current present.
+      if (isSpace) {
+        e.preventDefault();
+        const idx = activeIndexRef.current;
+        const sectionId = sections[idx]?.id;
+        if (!sectionId) return;
+        const state = unwrapStateById[sectionId] ?? "wrapped";
+        if (state === "wrapped") unwrap(sectionId);
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
         scrollToIndex(activeIndexRef.current + 1);
       }
@@ -429,7 +444,7 @@ export default function FlowerCarousel() {
 
     window.addEventListener("keydown", onKeyDown, { passive: false });
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [sections.length]);
+  }, [sections, unwrapStateById]);
 
   return (
     <div className="relative w-full h-screen">
